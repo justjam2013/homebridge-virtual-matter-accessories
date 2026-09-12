@@ -1,0 +1,35 @@
+name: Close Waiting For Reply Issues
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Run every day at midnight
+
+jobs:
+  close-waiting-for-reply-issues:
+    runs-on: ubuntu-latest
+
+    permissions:
+      issues: write
+      pull-requests: write
+
+    steps:
+      - name: Close waiting-for-reply issues
+        uses: actions/stale@v11
+        with:
+          days-before-issue-stale: 7
+          days-before-issue-close: 3
+          any-of-issue-labels: 'waiting for reply'
+
+          stale-issue-label: abandoned
+          stale-issue-message: "This issue is abandoned because there has been no reply for 7 days."
+
+          days-before-pr-stale: 7
+          days-before-pr-close: 3
+          any-of-pr-labels: 'waiting for reply'
+
+          stale-pr-label: abandoned
+          stale-pr-message: "This issue is abandoned because there has been no reply for 7 days."
+
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+          debug-only: false

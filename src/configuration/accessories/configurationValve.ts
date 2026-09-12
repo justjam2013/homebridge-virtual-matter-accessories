@@ -1,0 +1,98 @@
+/* eslint-disable curly */
+
+import { Validatable } from '../validatable.js';
+import { ValveType } from '../schema.js';
+
+import { Utils } from '../../utils/utils.js';
+
+import { Type } from 'typeserializer';
+
+/**
+ * 
+ */
+class ValveDurationConfiguration implements Validatable {
+
+  static readonly MINUTES_MAX_VALUE: number = 60;
+  static readonly SECONDS_MAX_VALUE: number = 59;
+
+  minutes!: number;
+  seconds: number = 0;
+
+  private errorFields: string[] = [];
+
+  readonly fieldNames = Utils.proxiedPropertiesOf(this);
+
+  isValid(prefix: string): [boolean, string[]] {
+    const isValidMinutes: boolean = (
+      Utils.required(this.minutes) &&
+      (this.minutes >= 0 && this.minutes <= ValveDurationConfiguration.MINUTES_MAX_VALUE)
+    );
+
+    // Do not exceed maximum value (MINUTES_MAX_VALUE)
+    if (isValidMinutes && this.minutes === ValveDurationConfiguration.MINUTES_MAX_VALUE) {
+      this.seconds = 0;
+    }
+
+    const isValidSeconds: boolean = (
+      Utils.required(this.seconds) &&
+      (this.seconds >= 0 && this.seconds <= ValveDurationConfiguration.SECONDS_MAX_VALUE)
+    );
+
+    if (!isValidMinutes) this.errorFields.push(prefix + '.' + this.fieldNames.minutes);
+    if (!isValidSeconds) this.errorFields.push(prefix + '.' + this.fieldNames.seconds);
+
+    return [
+      (isValidMinutes &&
+        isValidSeconds),
+      this.errorFields,
+    ];
+  }
+
+  toSeconds(): number {
+    const seconds: number = Utils.daysHoursMinutesSecondsToSeconds(0, 0, this.minutes, this.seconds);
+    return seconds;
+  }
+}
+
+/**
+ * 
+ */
+export class ValveConfiguration implements Validatable {
+  type!: string;
+  @Type(ValveDurationConfiguration)
+    duration!: ValveDurationConfiguration;
+
+  private errorFields: string[] = [];
+
+  readonly fieldNames = Utils.proxiedPropertiesOf(this);
+
+  isValid(prefix: string): [boolean, string[]] {
+    const isValidType: boolean = (
+      Utils.required(this.type) &&
+      ValveType.Types.includes(this.type)
+    );
+
+    let isValidDuration: boolean = true;
+    let durationErrorFields: string[] = [];
+    if (this.duration !== undefined) {
+      [isValidDuration, durationErrorFields] = this.duration.isValid(this.fieldNames.duration!);
+    } 
+    else {
+      [isValidDuration, durationErrorFields] = [false, [ this.fieldNames.duration! ]];
+    }
+
+    // Store fields failing validation
+    if (!isValidType) this.errorFields.push(prefix + '.' + this.fieldNames.type);
+    if (!isValidDuration) {
+      durationErrorFields.forEach( (errorField) => {
+        this.errorFields.push(prefix + '.' + errorField);
+      });
+    }
+
+    return [
+      (isValidType &&
+        isValidDuration),
+      this.errorFields,
+    ];
+  }
+}
