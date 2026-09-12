@@ -1,0 +1,73 @@
+{
+  "name": "homebridge-virtual-matter-accessories",
+  "displayName": "Virtual Matter Accessories",
+  "type": "module",
+  "version": "3.16.1",
+  "description": "Virtual Matter accessories for Homebridge.",
+  "author": "justjam2023 (Renzo Zanelli - renzo.zanelli6@gmail.com)",
+  "license": "MIT",
+  "funding": [
+    {
+      "type": "kofi",
+      "url": "https://ko-fi.com/justjam2013"
+    }
+  ],
+  "homepage": "https://github.com/justjam2013/homebridge-virtual-matter-accessories#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/justjam2013/homebridge-virtual-matter-accessories.git"
+  },
+  "bugs": {
+    "url": "https://github.com/justjam2013/homebridge-virtual-matter-accessories/issues"
+  },
+  "keywords": [
+    "homebridge",
+    "homebridge-plugin",
+    "plugin",
+    "homebridge plugin",
+    "virtual",
+    "virtual accessory",
+    "virtual accessories",
+    "switch",
+    "virtual switch",
+    "stateful switch",
+    "delay",
+    "timer",
+    "dummy"
+  ],
+  "main": "dist/index.js",
+  "directories": {
+    "schemas": "schemas/"
+  },
+  "engines": {
+    "node": "^22.0.0 || ^24.0.0 || ^26.0.0",
+    "homebridge": "^1.8.0 || ^2.0.0-beta.0"
+  },
+  "scripts": {
+    "build": "rimraf ./dist && tsc",
+    "lint": "eslint . --max-warnings=0",
+    "prepublishOnly": "npm run lint && npm run build",
+    "watch": "npm run build && npm link && nodemon"
+  },
+  "dependencies": {
+    "@js-joda/core": "^6.0.0",
+    "@js-joda/timezone": "^2.22.0",
+    "homebridge-lib": "^8.0.0",
+    "reflect-metadata": "^0.2.2",
+    "typeserializer": "^0.2.5"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@types/node": "^26.0.0",
+    "eslint": "^10.0.1",
+    "homebridge": "^2.0.0-beta.64",
+    "nodemon": "^3.1.11",
+    "rimraf": "^6.1.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.46.4"
+  },
+  "allowScripts": {
+    "fsevents": true
+  }
+}
