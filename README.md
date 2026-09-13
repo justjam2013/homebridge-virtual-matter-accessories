@@ -10,6 +10,6 @@
 
 </span>
 
-### Virtual Matter Accessories is a plugin for Homebridge that provides the ability to create virtual Matter accessories.
+### Virtual Matter Accessories For Homebridge is a plugin for Homebridge that provides the ability to create virtual Matter accessories.
 
 ## <!-- Thin separator line -->
