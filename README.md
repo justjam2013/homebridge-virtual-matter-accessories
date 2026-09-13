@@ -6,10 +6,10 @@
 
 <span align="center">
 
-# Virtual Matter Accessories
+# Virtual Matter Accessories For Homebridge
 
 </span>
 
-### Virtual Matter Accessories is a plugin for Homebridge that provides the ability to create virtual Apple Matter accessories.
+### Virtual Matter Accessories is a plugin for Homebridge that provides the ability to create virtual Matter accessories.
 
 ## <!-- Thin separator line -->
