@@ -64,7 +64,7 @@ export class Switch extends Accessory {
 
       if (cachedOn !== undefined) {
         this.On = cachedOn;
-        // this.SensorState = this.determineSensorState();
+        this.SensorState = this.determineSensorState();
       }
 
       if (this.accessoryConfiguration.switch.hasResetTimer) {
@@ -140,11 +140,11 @@ export class Switch extends Accessory {
 
     this.saveState();
 
-    // if (this.accessoryConfiguration.switch.hasCompanionSensor) {
-    //   this.SensorState = this.determineSensorState();
+    if (this.accessoryConfiguration.switch.hasCompanionSensor) {
+      this.SensorState = this.determineSensorState();
 
-    //   this.companionSensor!.triggerCompanionSensorState(this.SensorState, this, this.muteLogging);
-    // }
+      this.companionSensor!.triggerCompanionSensorState(this.SensorState, this, this.muteLogging);
+    }
   }
 
   // Abstract methods impl
