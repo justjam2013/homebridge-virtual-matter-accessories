@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { PlatformAccessory, Service, WithUUID } from 'homebridge';
+import { MatterAccessory, Service, WithUUID } from 'homebridge';
 
 import { VirtualMatterAccessoriesPlatform } from '../../platform.js';
 import { AccessoryConfiguration } from '../../configuration/configurationAccessory.js';
@@ -26,7 +26,7 @@ export class CompanionSensor {
 
   static getTriggerableCompanionSensor(
     platform: VirtualMatterAccessoriesPlatform,
-    accessory: PlatformAccessory,
+    accessory: MatterAccessory,
     accessoryConfiguration: AccessoryConfiguration,
   ): TriggerableCompanionSensor | undefined {
     const sensorType: string = accessoryConfiguration.companionSensor.type;
@@ -109,7 +109,7 @@ class CompanionCarbonDioxideSensor extends Companion(CarbonDioxideSensor) {
 
   constructor(
     platform: VirtualMatterAccessoriesPlatform,
-    accessory: PlatformAccessory,
+    accessory: MatterAccessory,
     accessoryConfiguration: AccessoryConfiguration,
     companionSensorName: string,
   ) {
@@ -123,7 +123,7 @@ class CompanionCarbonMonoxideSensor extends Companion(CarbonMonoxideSensor) {
 
   constructor(
     platform: VirtualMatterAccessoriesPlatform,
-    accessory: PlatformAccessory,
+    accessory: MatterAccessory,
     accessoryConfiguration: AccessoryConfiguration,
     companionSensorName: string,
   ) {
@@ -137,7 +137,7 @@ class CompanionContactSensor extends Companion(ContactSensor) {
 
   constructor(
     platform: VirtualMatterAccessoriesPlatform,
-    accessory: PlatformAccessory,
+    accessory: MatterAccessory,
     accessoryConfiguration: AccessoryConfiguration,
     companionSensorName: string,
   ) {
@@ -151,7 +151,7 @@ class CompanionLeakSensor extends Companion(LeakSensor) {
 
   constructor(
     platform: VirtualMatterAccessoriesPlatform,
-    accessory: PlatformAccessory,
+    accessory: MatterAccessory,
     accessoryConfiguration: AccessoryConfiguration,
     companionSensorName: string,
   ) {
@@ -165,7 +165,7 @@ class CompanionMotionSensor extends Companion(MotionSensor) {
 
   constructor(
     platform: VirtualMatterAccessoriesPlatform,
-    accessory: PlatformAccessory,
+    accessory: MatterAccessory,
     accessoryConfiguration: AccessoryConfiguration,
     companionSensorName: string,
   ) {
@@ -179,7 +179,7 @@ class CompanionOccupancySensor extends Companion(OccupancySensor) {
 
   constructor(
     platform: VirtualMatterAccessoriesPlatform,
-    accessory: PlatformAccessory,
+    accessory: MatterAccessory,
     accessoryConfiguration: AccessoryConfiguration,
     companionSensorName: string,
   ) {
@@ -193,7 +193,7 @@ class CompanionSmokeSensor extends Companion(SmokeSensor) {
 
   constructor(
     platform: VirtualMatterAccessoriesPlatform,
-    accessory: PlatformAccessory,
+    accessory: MatterAccessory,
     accessoryConfiguration: AccessoryConfiguration,
     companionSensorName: string,
   ) {

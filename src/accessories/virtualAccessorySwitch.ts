@@ -1,6 +1,6 @@
-import type { CharacteristicValue, PlatformAccessory } from 'homebridge';
+import type { CharacteristicValue, EndpointType, MatterAccessory, PlatformAccessory } from 'homebridge';
 
-import { ServiceType, VirtualMatterAccessoriesPlatform } from '../platform.js';
+import { VirtualMatterAccessoriesPlatform } from '../platform.js';
 import { AccessoryConfiguration } from '../configuration/configurationAccessory.js';
 import { Accessory } from './accessory.js';
 
@@ -12,15 +12,19 @@ import { Utils } from '../utils/utils.js';
 
 import { Duration } from '@js-joda/core';
 
+abstract class StorageKeys {
+
+  static On: string = 'On';
+
+  static TimerStartTime: string = 'TimerStartTime';
+  static TimerDuration: string = 'TimerDuration';
+  static TimerIsRunning: string = 'TimerIsRunning';
+}
+
 /**
  * Switch - Accessory implementation
  */
 export class Switch extends Accessory {
-
-  private readonly stateStorageKey: string = 'SwitchState';
-  private readonly timerStartTimeStorageKey: string = 'TimerStartTime';
-  private readonly timerDurationStorageKey: string = 'TimerDuration';
-  private readonly timerIsRunningStorageKey: string = 'TimerIsRunning';
 
   protected resetTimer?: Timer;
 
@@ -31,10 +35,11 @@ export class Switch extends Accessory {
 
   constructor(
     platform: VirtualMatterAccessoriesPlatform,
-    accessory: PlatformAccessory,
+    accessory: MatterAccessory,
     accessoryConfiguration: AccessoryConfiguration,
   ) {
-    super(platform, accessory, accessoryConfiguration, ServiceType.Switch);
+    const deviceType: EndpointType = platform.api.matter!.deviceTypes.OnOffSwitch;
+    super(platform, accessory, accessoryConfiguration, deviceType);
 
     let On: boolean = Switch.OFF;
 
@@ -53,19 +58,19 @@ export class Switch extends Accessory {
       this.log.debug(`[${this.accessoryName}] Switch is stateful`);
 
       const accessoryState: string = this.loadAccessoryState(this.storagePath);
-      const cachedState: boolean = accessoryState[this.stateStorageKey] as boolean;
+      const cachedOn: boolean = accessoryState[StorageKeys.On] as boolean;
 
-      if (cachedState !== undefined) {
-        On = cachedState;
+      if (cachedOn !== undefined) {
+        On = cachedOn;
         this.SensorState = this.determineSensorState();
       }
 
       if (this.accessoryConfiguration.switch.hasResetTimer) {
         this.log.debug(`[${this.accessoryName}] Switch has reset timer`);
 
-        const cachedTimerStartTime = accessoryState[this.timerStartTimeStorageKey] as string;
-        const cachedTimerDuration = accessoryState[this.timerDurationStorageKey] as number;
-        const cachedTimerIsRunning = accessoryState[this.timerIsRunningStorageKey] as boolean;
+        const cachedTimerStartTime = accessoryState[StorageKeys.TimerStartTime] as string;
+        const cachedTimerDuration = accessoryState[StorageKeys.TimerDuration] as number;
+        const cachedTimerIsRunning = accessoryState[StorageKeys.TimerIsRunning] as boolean;
 
         this.log.debug(`[${this.accessoryName}] Cached Timer Start Time: ${cachedTimerStartTime}`);
         this.log.debug(`[${this.accessoryName}] Cached Timer Duration: ${cachedTimerDuration}`);
@@ -79,14 +84,15 @@ export class Switch extends Accessory {
       }
     }
 
-    // Update the initial state of the accessory
-    this.setOn(On);
-
-    // Last register handlers
-
-    this.service.getCharacteristic(this.platform.Characteristic.On)
-      .onSet(this.setOnHandler.bind(this))
-      .onGet(this.getOnHandler.bind(this));
+    this.clusters = {
+      onOff: { onOff: On },
+    };
+    this.handlers = {
+      onOff: {
+        on: async () => this.setOnHandler(true),
+        off: async () => this.setOnHandler(false),
+      },
+    };
 
     /**
      * Creating multiple services of the same type.
@@ -111,16 +117,9 @@ export class Switch extends Accessory {
 
   // On
 
-  async getOnHandler(): Promise<CharacteristicValue> {
-    const On: boolean = this.getOn();
-    this.log.debug(`[${this.accessoryName}] Getting State: ${Switch.getOnName(On)}`);
-
-    return On;
-  }
-
-  async setOnHandler(value: CharacteristicValue) {
-    let On: boolean = value as boolean;
-    On = this.updateOn(On);
+  async setOnHandler(value: boolean) {
+    let On: boolean = value;
+    On = await this.updateOn(this.UUID, On);
     this.log.info(`[${this.accessoryName}] Setting State: ${Switch.getOnName(On)}`, this.muteLogging);
 
     if (this.accessoryConfiguration.switch.hasResetTimer) {
@@ -148,7 +147,7 @@ export class Switch extends Accessory {
 
   protected getJsonState(): string {
     const jsonState = {
-      [this.stateStorageKey]: this.getOn(),
+      [StorageKeys.On]: this.getOn(),
     };
 
     if (this.accessoryConfiguration.switch.hasResetTimer) {
@@ -156,9 +155,9 @@ export class Switch extends Accessory {
       const timerDuration: number = (this.resetTimer!.getRuntime() > 0) ? this.resetTimer!.getRuntime() : this.resetTimer!.getDefaultDuration();
       const timerIsRunning: boolean = this.resetTimer!.isTimerRunning();
 
-      Object.assign(jsonState, { [this.timerStartTimeStorageKey]: timerStartTime });
-      Object.assign(jsonState, { [this.timerDurationStorageKey]: timerDuration });
-      Object.assign(jsonState, { [this.timerIsRunningStorageKey]: timerIsRunning });
+      Object.assign(jsonState, { [StorageKeys.TimerStartTime]: timerStartTime });
+      Object.assign(jsonState, { [StorageKeys.TimerDuration]: timerDuration });
+      Object.assign(jsonState, { [StorageKeys.TimerIsRunning]: timerIsRunning });
     }
 
     const json = JSON.stringify(jsonState);
@@ -174,7 +173,7 @@ export class Switch extends Accessory {
     if (this.defaultState === Switch.OFF) {
       sensorState = (On === Switch.OFF) ? BinarySensor.NORMAL : BinarySensor.TRIGGERED;
     }
-    else {
+    else {  // (this.defaultState === Switch.ON)
       sensorState = (On === Switch.ON) ? BinarySensor.NORMAL : BinarySensor.TRIGGERED;
     }
 
@@ -243,7 +242,7 @@ export class Switch extends Accessory {
 
   // Lazy static getters
 
-  static get ON(): boolean   { return true; }
+  static get ON(): boolean  { return true; }
   static get OFF(): boolean { return false; }
 
   static getOnName(state: boolean): string {

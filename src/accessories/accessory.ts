@@ -1,29 +1,40 @@
- 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { Categories, PlatformAccessory, Service, WithUUID } from 'homebridge';
+import { ClusterStateMap, EndpointType, MatterAccessory, MatterAPI, Service } from 'homebridge';
 
-import { CharacteristicType, ServiceType, VirtualMatterAccessoriesPlatform } from '../platform.js';
+import { VirtualMatterAccessoriesPlatform } from '../platform.js';
 import { AccessoryConfiguration } from '../configuration/configurationAccessory.js';
 
 import { VirtualLogger } from '../utils/virtualLogger.js';
-import { CharacteristicUtils } from '../characteristicsUtils.js';
 
 import fs from 'fs';
+import { ClustersUtils } from '../clustersUtils.js';
 
 /**
  * Abstract Accessory
  */
-export abstract class Accessory extends CharacteristicUtils {
-  //service!: Service;
+export abstract class Accessory extends ClustersUtils implements MatterAccessory {
+
+  // MatterAccessory interface properties
+  UUID: string;
+  displayName: string;
+  deviceType: EndpointType;
+  serialNumber: string;
+  manufacturer: string;
+  model: string;
+  context: Record<string, unknown>;
+  firmwareRevision?: string;
+  // hardwareRevision?: string;   // No hardware!
+  clusters?: MatterAccessory['clusters'];
+  handlers?: MatterAccessory['handlers'];
+  parts?: MatterAccessory['parts'];
 
   readonly platform: VirtualMatterAccessoriesPlatform;
-  readonly accessory: PlatformAccessory;
+  readonly accessory: MatterAccessory;
 
   readonly accessoryConfiguration: AccessoryConfiguration;
   readonly log: VirtualLogger;
 
-  protected serviceType: WithUUID<typeof Service>;
   protected accessoryName: string = '';
   protected defaultState!: number | boolean;
 
@@ -33,21 +44,40 @@ export abstract class Accessory extends CharacteristicUtils {
 
   constructor(
     platform: VirtualMatterAccessoriesPlatform,
-    accessory: PlatformAccessory,
+    accessory: MatterAccessory,
     accessoryConfiguration: AccessoryConfiguration,
-    serviceType: WithUUID<typeof Service>,
-    createService: boolean = true,
+    deviceType: EndpointType,
   ) {
-    super();
+    super(platform.api.matter!);
 
     this.accessory = accessory;
     this.platform = platform;
-    this.serviceType = serviceType;
+
+    // MatterAccessory interface properties
+    this.UUID = accessoryConfiguration.accessoryID;
+    this.displayName = accessoryConfiguration.accessoryName;
+    this.deviceType = deviceType;
+    this.serialNumber = this.accessory.UUID;
+    this.manufacturer = 'Virtual Matter Accessories';
+    this.model = `Virtual Accessory - ${this.deviceType.name}`;
+    this.firmwareRevision = this.accessory.context.firmwareVersion;
+
+    // Set context with all metadata
+    this.context = {
+      serialNumber: this.serialNumber,
+      manufacturer: this.manufacturer,
+      model: this.model,
+      firmwareRevision: this.firmwareRevision,
+      ...this.accessory.context,
+    }
 
     // The accessory configuration is stored in the context in VirtualAccessoryPlatform.discoverDevices()
     this.accessoryConfiguration = accessoryConfiguration;
     this.accessoryName = this.accessoryConfiguration.accessoryName;
-    this.log = this.platform.log;
+
+    this.log = this.platform.log;    
+
+
 
     this.log.debug(`[${this.accessoryName}] Accessory context: ${JSON.stringify(accessory.context)}`);
 
@@ -55,33 +85,6 @@ export abstract class Accessory extends CharacteristicUtils {
 
     if (!this.accessoryConfiguration.accessoryIsStateful) {
       this.deleteState(this.storagePath);
-    }
-
-    // Set accessory information
-    this.accessoryInformationService = this.accessory.getService(ServiceType.AccessoryInformation);
-    this.accessoryInformationService!
-      .setCharacteristic(CharacteristicType.Manufacturer, 'Virtual Accessories for Homebridge')
-      .setCharacteristic(CharacteristicType.Model, `Virtual Accessory - ${this.getServiceTypeName(serviceType)}`)
-      .setCharacteristic(CharacteristicType.SerialNumber, this.accessory.UUID)
-      .setCharacteristic(CharacteristicType.Name, this.accessoryName)
-      .setCharacteristic(CharacteristicType.FirmwareRevision, this.accessory.context.firmwareVersion);
-
-    // Set accessory service info
-    if (createService) {
-      this.service = this.accessory.getService(serviceType) || this.accessory.addService(serviceType as unknown as Service);
-
-      this.updateName(this.accessoryName);
-    }
-  }
-
-  isExternalAccessory(): boolean {
-    return [Categories.SPEAKER, Categories.TELEVISION].includes(this.accessory.category);
-  }
-
-  updateInformationServiceConfiguredName() {
-    const configuredName = this.accessoryInformationService!.getCharacteristic(CharacteristicType.ConfiguredName);
-    if (configuredName !== undefined) {
-      this.accessoryInformationService!.removeCharacteristic(configuredName);
     }
   }
 
@@ -146,40 +149,29 @@ export abstract class Accessory extends CharacteristicUtils {
     }
   }
 
-  getServiceType(): WithUUID<typeof Service> {
-    return this.serviceType;
-  }
+  /**
+   * Update the accessory state
+   */
+  // protected async updateAccessoryState<K extends keyof ClusterStateMap>(cluster: K, attributes: Partial<ClusterStateMap[K]>, partId?: string): Promise<void>
+  // protected async updateAccessoryState(cluster: string, attributes: Record<string, unknown>, partId?: string): Promise<void>
+  // protected async updateAccessoryState(cluster: string, attributes: Record<string, unknown>, partId?: string): Promise<void> {
+  //   await this.api.updateAccessoryState(this.UUID, cluster, attributes, partId)
 
-  getServiceTypeName(serviceType: WithUUID<typeof Service>): string {
-    let accessoryTypeName: string;
+  //   this.log.debug(`[${this.accessoryName}] Updated ${cluster} state: ${JSON.stringify(attributes)}`);
+  // }
 
-    switch(serviceType) {
-    case ServiceType.AirPurifier: { accessoryTypeName = 'AirPurifier'; break; }
-    case ServiceType.Battery: { accessoryTypeName = 'Battery'; break; }
-    case ServiceType.Door: { accessoryTypeName = 'Door'; break; }
-    case ServiceType.Doorbell: { accessoryTypeName = 'Doorbell'; break; }
-    case ServiceType.Fan: { accessoryTypeName = 'Fan'; break; }
-    case ServiceType.FilterMaintenance: { accessoryTypeName = 'Filter'; break; }
-    case ServiceType.GarageDoorOpener: { accessoryTypeName = 'GarageDoor'; break; }
-    case ServiceType.HeaterCooler: { accessoryTypeName = 'HeaterCooler'; break; }
-    case ServiceType.HumidifierDehumidifier: { accessoryTypeName = 'HumidifierDehumidifier'; break; }
-    case ServiceType.InputSource: { accessoryTypeName = 'InputSource'; break; }
-    case ServiceType.Lightbulb: { accessoryTypeName = 'Lightbulb'; break; }
-    case ServiceType.LockMechanism: { accessoryTypeName = 'Lock'; break; }
-    case ServiceType.Microphone: { accessoryTypeName = 'Microphone'; break; }
-    case ServiceType.SecuritySystem: { accessoryTypeName = 'SecuritySystem'; break; }
-    case ServiceType.SmartSpeaker: { accessoryTypeName = 'SmartSpeaker'; break; }
-    case ServiceType.Speaker: { accessoryTypeName = 'Speaker'; break; }
-    case ServiceType.Switch: { accessoryTypeName = 'Switch'; break; }
-    case ServiceType.Television: { accessoryTypeName = 'Television'; break; }
-    case ServiceType.Valve: { accessoryTypeName = 'Valve'; break; }
-    case ServiceType.Window: { accessoryTypeName = 'Window'; break; }
-    case ServiceType.WindowCovering: { accessoryTypeName = 'WindowCovering'; break; }
-    default: { accessoryTypeName = 'unknown'; }
-    }
+  /**
+   * Read the current accessory state
+   */
+  // protected async readAccessoryState<K extends keyof ClusterStateMap>(cluster: K, partId?: string): Promise<Partial<ClusterStateMap[K]> | undefined>
+  // protected async readAccessoryState(cluster: string, partId?: string): Promise<Record<string, unknown> | undefined>
+  // protected async readAccessoryState(cluster: string, partId?: string): Promise<Record<string, unknown> | undefined> {
+  //   const accessoryState: Record<string, unknown> | undefined = await this.api.getAccessoryState(this.UUID, cluster, partId)
 
-    return accessoryTypeName;
-  }
+  //   this.log.debug(`[${this.accessoryName}] Read ${cluster} state: ${JSON.stringify(accessoryState)}`);
+
+  //   return accessoryState;
+  // }
 
   // Absract methods
 
