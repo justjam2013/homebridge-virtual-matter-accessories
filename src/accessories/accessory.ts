@@ -40,13 +40,13 @@ export abstract class Accessory extends ClustersUtils {
     this.platform = platform;
 
     // MatterAccessory interface properties
-    this.accessory.UUID = accessoryConfiguration.accessoryID;
-    this.accessory.displayName = accessoryConfiguration.accessoryName;
-    this.accessory.deviceType = deviceType;
-    this.accessory.serialNumber = this.accessory.UUID;
     this.accessory.manufacturer = 'Virtual Matter Accessories';
     this.accessory.model = `Virtual Accessory - ${deviceType.name}`;
+    this.accessory.serialNumber = this.accessory.UUID;
     this.accessory.firmwareRevision = this.accessory.context.firmwareVersion;
+
+    this.accessory.displayName = accessoryConfiguration.accessoryName;
+    this.accessory.deviceType = deviceType;
 
     // Set context with all metadata
     this.accessory.context = {

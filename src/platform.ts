@@ -168,7 +168,7 @@ export class VirtualMatterAccessoriesPlatform implements DynamicPlatformPlugin {
       // generate a unique id for the accessory this should be generated from
       // something globally unique, but constant, for example, the device serial
       // number or MAC address
-      const uuid: string = this.api.hap.uuid.generate(accessoryConfiguration.accessoryID);
+      const uuid: string = this.api.matter!.uuid.generate(accessoryConfiguration.accessoryID);
 
       // see if an accessory with the same uuid has already been registered and restored from
       // the cached devices we stored in the `configureAccessory` method above
@@ -193,11 +193,10 @@ export class VirtualMatterAccessoriesPlatform implements DynamicPlatformPlugin {
           if (cachedAccessory.displayName !== accessoryConfiguration.accessoryName) {
             this.log.info(`Updating accessory name from ${cachedAccessory.displayName} to ${accessoryConfiguration.accessoryName}`);
 
-            virtualAccessory.updateInformationServiceConfiguredName();
-            cachedAccessory.updateDisplayName(accessoryConfiguration.accessoryName);
+            cachedAccessory.displayName = accessoryConfiguration.accessoryName;
           }
           // Just update all the cached accessories
-          this.api.updatePlatformAccessories([cachedAccessory]);
+          this.api.matter!.updatePlatformAccessories([cachedAccessory]);
           this.log.debug(`Updating cache: ${accessoryConfiguration.accessoryName}`);
 
           virtualAccessories.push(virtualAccessory);
@@ -253,7 +252,7 @@ export class VirtualMatterAccessoriesPlatform implements DynamicPlatformPlugin {
         this.log.warn(`Removing deleted accessory: ${cachedAccessory.displayName}`);
 
         // Unregister the accessory from the platform
-        this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [cachedAccessory]);
+        this.api.matter!.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [cachedAccessory]);
 
         // Delete any stateful info, if it exists
         const storagePath: string = cachedAccessory.context.storagePath as string;
