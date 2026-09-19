@@ -236,8 +236,10 @@ export class Switch extends Accessory {
     );
   }
 
-  private onTimerExpired(): void {
-    this.service!.setCharacteristic(this.platform.Characteristic.On, this.defaultState);
+  private async onTimerExpired(): Promise<void> {
+    await this.setOnHandler(this.defaultState as boolean);
+
+    await this.updateOn(this.accessory.UUID, this.On);
   }
 
   //
