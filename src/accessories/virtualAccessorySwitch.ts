@@ -1,4 +1,4 @@
-import type { CharacteristicValue, EndpointType, MatterAccessory, PlatformAccessory } from 'homebridge';
+import type { EndpointType, MatterAccessory } from 'homebridge';
 
 import { VirtualMatterAccessoriesPlatform } from '../platform.js';
 import { AccessoryConfiguration } from '../configuration/configurationAccessory.js';
@@ -84,10 +84,10 @@ export class Switch extends Accessory {
       }
     }
 
-    this.clusters = {
+    this.accessory.clusters = {
       onOff: { onOff: On },
     };
-    this.handlers = {
+    this.accessory.handlers = {
       onOff: {
         on: async () => this.setOnHandler(true),
         off: async () => this.setOnHandler(false),

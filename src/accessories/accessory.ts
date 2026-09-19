@@ -1,6 +1,6 @@
- /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { ClusterStateMap, EndpointType, MatterAccessory, MatterAPI, Service } from 'homebridge';
+import { EndpointType, MatterAccessory, Service } from 'homebridge';
 
 import { VirtualMatterAccessoriesPlatform } from '../platform.js';
 import { AccessoryConfiguration } from '../configuration/configurationAccessory.js';
@@ -13,21 +13,7 @@ import { ClustersUtils } from '../clustersUtils.js';
 /**
  * Abstract Accessory
  */
-export abstract class Accessory extends ClustersUtils implements MatterAccessory {
-
-  // MatterAccessory interface properties
-  UUID: string;
-  displayName: string;
-  deviceType: EndpointType;
-  serialNumber: string;
-  manufacturer: string;
-  model: string;
-  context: Record<string, unknown>;
-  firmwareRevision?: string;
-  // hardwareRevision?: string;   // No hardware!
-  clusters?: MatterAccessory['clusters'];
-  handlers?: MatterAccessory['handlers'];
-  parts?: MatterAccessory['parts'];
+export abstract class Accessory extends ClustersUtils {
 
   readonly platform: VirtualMatterAccessoriesPlatform;
   readonly accessory: MatterAccessory;
@@ -54,22 +40,22 @@ export abstract class Accessory extends ClustersUtils implements MatterAccessory
     this.platform = platform;
 
     // MatterAccessory interface properties
-    this.UUID = accessoryConfiguration.accessoryID;
-    this.displayName = accessoryConfiguration.accessoryName;
-    this.deviceType = deviceType;
-    this.serialNumber = this.accessory.UUID;
-    this.manufacturer = 'Virtual Matter Accessories';
-    this.model = `Virtual Accessory - ${this.deviceType.name}`;
-    this.firmwareRevision = this.accessory.context.firmwareVersion;
+    this.accessory.UUID = accessoryConfiguration.accessoryID;
+    this.accessory.displayName = accessoryConfiguration.accessoryName;
+    this.accessory.deviceType = deviceType;
+    this.accessory.serialNumber = this.accessory.UUID;
+    this.accessory.manufacturer = 'Virtual Matter Accessories';
+    this.accessory.model = `Virtual Accessory - ${deviceType.name}`;
+    this.accessory.firmwareRevision = this.accessory.context.firmwareVersion;
 
     // Set context with all metadata
-    this.context = {
-      serialNumber: this.serialNumber,
-      manufacturer: this.manufacturer,
-      model: this.model,
-      firmwareRevision: this.firmwareRevision,
+    this.accessory.context = {
+      serialNumber: this.accessory.serialNumber,
+      manufacturer: this.accessory.manufacturer,
+      model: this.accessory.model,
+      firmwareRevision: this.accessory.firmwareRevision,
       ...this.accessory.context,
-    }
+    };
 
     // The accessory configuration is stored in the context in VirtualAccessoryPlatform.discoverDevices()
     this.accessoryConfiguration = accessoryConfiguration;

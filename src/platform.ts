@@ -18,6 +18,7 @@ import fs from 'fs';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore <-- TODO remove this line, unless that gives an error
 import packageInfo from '../package.json' with { type: 'json' };
+import { MatterFactory } from './matterFactory.js';
 
 /**
  * HomebridgePlatform
@@ -54,13 +55,13 @@ export class VirtualMatterAccessoriesPlatform implements DynamicPlatformPlugin {
     // Does the user have a version of Homebridge that is compatible with matter?
     if (!this.api.isMatterAvailable?.()) {
       this.log.error('Matter is not supported in this version of Homebridge. Update to a newer version of Homebridge.');
-      return
+      return;
     }
 
     // Check if the user has matter enabled, this means:
     if (!this.api.isMatterEnabled?.()) {
       this.log.warn('Matter support is not enabled. Enable Matter support in Homebridge Settings.');
-      return
+      return;
     }
 
     // Validate platform name
@@ -115,11 +116,12 @@ export class VirtualMatterAccessoriesPlatform implements DynamicPlatformPlugin {
 
       this.cachedAccessories.forEach((device) => {
         try {
-          device.shutdown()
-        } catch (error) {
+          device.shutdown();
+        }
+        catch (error) {
           this.log.debug(`Failed to shut down a device cleanly: ${error}`);
         }
-      })
+      });
     });
   }
 
@@ -209,10 +211,10 @@ export class VirtualMatterAccessoriesPlatform implements DynamicPlatformPlugin {
         this.log.info(`Adding new accessory: ${accessoryConfiguration.accessoryName}`);
 
         // create a new accessory
-        const accessory: MatterAccessory<UnknownContext> = new this.api.matter!.platformAccessory(
+        const accessory: MatterAccessory<UnknownContext> = MatterFactory.matterAccessory(
           accessoryConfiguration.accessoryName,
           uuid,
-          accessoryConfiguration.category,
+          accessoryConfiguration.accessoryType,
         );
 
         // store a copy of the device configuration in the `accessory.context`
