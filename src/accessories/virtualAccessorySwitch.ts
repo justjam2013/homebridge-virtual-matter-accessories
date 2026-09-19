@@ -33,6 +33,8 @@ export class Switch extends Accessory {
 
   protected muteLogging: boolean;
 
+  private On: boolean;
+
   constructor(
     platform: VirtualMatterAccessoriesPlatform,
     accessory: MatterAccessory,
@@ -41,13 +43,13 @@ export class Switch extends Accessory {
     const deviceType: EndpointType = platform.api.matter!.deviceTypes.OnOffSwitch;
     super(platform, accessory, accessoryConfiguration, deviceType);
 
-    let On: boolean = Switch.OFF;
+    this.On = Switch.OFF;
 
     // First configure the device based on the accessory details
     this.defaultState = this.accessoryConfiguration.switch.defaultState === 'on' ? Switch.ON : Switch.OFF;
     this.muteLogging = this.accessoryConfiguration.switch.muteLogging;
 
-    On = this.defaultState;
+    this.On = this.defaultState;
 
     if (this.accessoryConfiguration.switch.hasResetTimer) {
       this.setupResetTimer(this.accessoryConfiguration.resetTimer);
@@ -61,7 +63,7 @@ export class Switch extends Accessory {
       const cachedOn: boolean = accessoryState[StorageKeys.On] as boolean;
 
       if (cachedOn !== undefined) {
-        On = cachedOn;
+        this.On = cachedOn;
         this.SensorState = this.determineSensorState();
       }
 
@@ -85,7 +87,9 @@ export class Switch extends Accessory {
     }
 
     this.accessory.clusters = {
-      onOff: { onOff: On },
+      onOff: {
+        onOff: this.On,
+      },
     };
     this.accessory.handlers = {
       onOff: {
@@ -118,8 +122,8 @@ export class Switch extends Accessory {
   // On
 
   async setOnHandler(value: boolean) {
-    let On: boolean = value;
-    On = await this.updateOn(this.UUID, On);
+    const On: boolean = value;
+    this.On = On;
     this.log.info(`[${this.accessoryName}] Setting State: ${Switch.getOnName(On)}`, this.muteLogging);
 
     if (this.accessoryConfiguration.switch.hasResetTimer) {
@@ -147,7 +151,7 @@ export class Switch extends Accessory {
 
   protected getJsonState(): string {
     const jsonState = {
-      [StorageKeys.On]: this.getOn(),
+      [StorageKeys.On]: this.On,
     };
 
     if (this.accessoryConfiguration.switch.hasResetTimer) {
@@ -169,7 +173,7 @@ export class Switch extends Accessory {
   private determineSensorState(): number {
     let sensorState: number;
 
-    const On: boolean = this.getOn();
+    const On: boolean = this.On;
     if (this.defaultState === Switch.OFF) {
       sensorState = (On === Switch.OFF) ? BinarySensor.NORMAL : BinarySensor.TRIGGERED;
     }

@@ -129,6 +129,7 @@ export class VirtualMatterAccessoriesPlatform implements DynamicPlatformPlugin {
    * This function is invoked when homebridge restores cached accessories from disk at startup.
    * It should be used to set up event handlers for characteristics and update respective values.
    */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   configureAccessory(accessory: PlatformAccessory) {
     // This is not used for Matter accessories - use configureMatterAccessory instead
     // This plugin does not have any hap accessories, so here we can comment this out
