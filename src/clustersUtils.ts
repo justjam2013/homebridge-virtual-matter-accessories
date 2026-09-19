@@ -27,6 +27,7 @@ export class ClustersUtils {
     partId?: string,
   ): Promise<Record<string, unknown> | undefined> {
     await this.api.updateAccessoryState(uuid, cluster, attributes, partId);
+    
     const axxessoryState: Record<string, unknown> | undefined = await this.api.getAccessoryState(uuid, cluster, partId);
     return axxessoryState;
   }
