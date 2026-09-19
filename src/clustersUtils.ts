@@ -1,4 +1,4 @@
-import { clusterNames, MatterAPI } from "homebridge";
+import { clusterNames, MatterAPI } from 'homebridge';
 
 export class ClustersUtils {
   protected api: MatterAPI;
@@ -15,7 +15,7 @@ export class ClustersUtils {
   async getClusterValue(
     uuid: string,
     cluster: string,
-    partId?: string
+    partId?: string,
   ): Promise<Record<string, unknown> | undefined> {
     return await this.api.getAccessoryState(uuid, cluster, partId);
   }
@@ -42,8 +42,12 @@ export class ClustersUtils {
   async getOn(
     uuid: string,
   ): Promise<boolean> {
-    const clusterValue: Record<string, unknown> = (await this.getClusterValue(uuid, this.clusterNames.OnOff)) as Record<string, unknown>;
-    const attributeValue: boolean = clusterValue[this.clusterNames.OnOff] as boolean;
+    const clusterValue: Record<string, unknown> = (
+      await this.getClusterValue(uuid, this.clusterNames.OnOff)
+    ) as Record<string, unknown>;
+
+    const attributeValue: boolean = clusterValue.onOff as boolean;
+
     return attributeValue;
   }
 
@@ -51,8 +55,12 @@ export class ClustersUtils {
     uuid: string,
     value: boolean,
   ): Promise<boolean> {
-    const clusterValue: Record<string, unknown> = (await this.setClusterValue(uuid, this.clusterNames.OnOff, { onOff: value })) as Record<string, unknown>;
-    const attributeValue: boolean = clusterValue[this.clusterNames.OnOff] as boolean;
+    const clusterValue: Record<string, unknown> = (
+      await this.setClusterValue(uuid, this.clusterNames.OnOff, { onOff: value })
+    ) as Record<string, unknown>;
+
+    const attributeValue: boolean = clusterValue.onOff as boolean;
+
     return attributeValue;
   }
 }
