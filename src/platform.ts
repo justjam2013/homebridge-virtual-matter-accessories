@@ -7,8 +7,8 @@ import { AccessoryFactory } from './accessoryFactory.js';
 import { ConfigurationUtils } from './configuration/utils.js';
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings.js';
 import { VirtualLogger, VirtualLogLevel } from './utils/virtualLogger.js';
-import { WebhookServerConfiguration } from './configuration/configurationWebhookServer.js';
-import { WebhookServer } from './webhookServer.js';
+// import { WebhookServerConfiguration } from './configuration/configurationWebhookServer.js';
+// import { WebhookServer } from './webhookServer.js';
 
 import { shutdownSignal } from './utils/utils.js';
 
@@ -29,7 +29,7 @@ export class VirtualMatterAccessoriesPlatform implements DynamicPlatformPlugin {
 
   public readonly log: VirtualLogger;
 
-  private readonly sensorUpdateServer?: WebhookServer;
+  // private readonly sensorUpdateServer?: WebhookServer;
 
   // this is used to track restored cached accessories
   public readonly cachedAccessories: MatterAccessory[] = [];
@@ -75,24 +75,24 @@ export class VirtualMatterAccessoriesPlatform implements DynamicPlatformPlugin {
     }
 
     // Create webhook server
-    const sensorServerConfig: WebhookServerConfiguration | undefined = new ConfigurationUtils(this.log)
-      .deserializeWebhookServerConfig(this.config.sensorServer);
-    if (sensorServerConfig?.enabled) {
-      const prefix: string = 'sensorServer';
-      let isValid: boolean = false;
-      let errorFields: string[] = [ prefix ];
-      [isValid, errorFields] = sensorServerConfig.isValid(prefix);
+    // const sensorServerConfig: WebhookServerConfiguration | undefined = new ConfigurationUtils(this.log)
+    //   .deserializeWebhookServerConfig(this.config.sensorServer);
+    // if (sensorServerConfig?.enabled) {
+    //   const prefix: string = 'sensorServer';
+    //   let isValid: boolean = false;
+    //   let errorFields: string[] = [ prefix ];
+    //   [isValid, errorFields] = sensorServerConfig.isValid(prefix);
 
-      if (!isValid) {
-        this.log.error(`Sensor Server configuration is invalid: ${JSON.stringify(sensorServerConfig)}`);
-        this.log.error(`Invalid fields: ${errorFields.toString()}`);
-      }
-      else {
-        this.log.debug(`Sensor Server configuration is valid: ${JSON.stringify(sensorServerConfig)}`);
+    //   if (!isValid) {
+    //     this.log.error(`Sensor Server configuration is invalid: ${JSON.stringify(sensorServerConfig)}`);
+    //     this.log.error(`Invalid fields: ${errorFields.toString()}`);
+    //   }
+    //   else {
+    //     this.log.debug(`Sensor Server configuration is valid: ${JSON.stringify(sensorServerConfig)}`);
         
-        this.sensorUpdateServer = new WebhookServer(this.log, parseInt(sensorServerConfig!.port));
-      }
-    }
+    //     this.sensorUpdateServer = new WebhookServer(this.log, parseInt(sensorServerConfig!.port));
+    //   }
+    // }
     
     this.log.debug('Finished initializing platform');
 
@@ -112,16 +112,16 @@ export class VirtualMatterAccessoriesPlatform implements DynamicPlatformPlugin {
       log.debug('Executing shutdown callback');
 
       shutdownSignal.isShuttingDown = true;
-      this.sensorUpdateServer?.stop();
+      // this.sensorUpdateServer?.stop();
 
-      this.cachedAccessories.forEach((device) => {
-        try {
-          device.shutdown();
-        }
-        catch (error) {
-          this.log.debug(`Failed to shut down a device cleanly: ${error}`);
-        }
-      });
+      // this.cachedAccessories.forEach((device) => {
+      //   try {
+      //     device.shutdown();
+      //   }
+      //   catch (error) {
+      //     this.log.debug(`Failed to shut down a device cleanly: ${error}`);
+      //   }
+      // });
     });
   }
 
@@ -271,8 +271,8 @@ export class VirtualMatterAccessoriesPlatform implements DynamicPlatformPlugin {
     }
 
     // Start sensor server
-    this.sensorUpdateServer?.addAccessories(virtualAccessories);
-    this.sensorUpdateServer?.start();
+    // this.sensorUpdateServer?.addAccessories(virtualAccessories);
+    // this.sensorUpdateServer?.start();
   }
 
   private deserializeAccessoryConfigurations(
