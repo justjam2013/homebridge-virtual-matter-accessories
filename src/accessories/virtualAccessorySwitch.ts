@@ -4,8 +4,8 @@ import { VirtualMatterAccessoriesPlatform } from '../platform.js';
 import { AccessoryConfiguration } from '../configuration/configurationAccessory.js';
 import { Accessory } from './accessory.js';
 
-import { CompanionSensor, TriggerableCompanionSensor } from '../sensors/companions/companionSensors.js';
-import { BinarySensor } from '../sensors/binarySensor.js';
+// import { CompanionSensor, TriggerableCompanionSensor } from '../sensors/companions/companionSensors.js';
+// import { BinarySensor } from '../sensors/binarySensor.js';
 import { Timer } from '../utils/timer.js';
 import { TimerConfiguration } from '../configuration/configurationTimer.js';
 import { Utils } from '../utils/utils.js';
@@ -28,8 +28,8 @@ export class Switch extends Accessory {
 
   protected resetTimer?: Timer;
 
-  protected companionSensor?: TriggerableCompanionSensor;
-  private SensorState: number = BinarySensor.NORMAL;
+  // protected companionSensor?: TriggerableCompanionSensor;
+  // private SensorState: number = BinarySensor.NORMAL;
 
   protected muteLogging: boolean;
 
@@ -64,7 +64,7 @@ export class Switch extends Accessory {
 
       if (cachedOn !== undefined) {
         this.On = cachedOn;
-        this.SensorState = this.determineSensorState();
+        // this.SensorState = this.determineSensorState();
       }
 
       if (this.accessoryConfiguration.switch.hasResetTimer) {
@@ -140,11 +140,11 @@ export class Switch extends Accessory {
 
     this.saveState();
 
-    if (this.accessoryConfiguration.switch.hasCompanionSensor) {
-      this.SensorState = this.determineSensorState();
+    // if (this.accessoryConfiguration.switch.hasCompanionSensor) {
+    //   this.SensorState = this.determineSensorState();
 
-      this.companionSensor!.triggerCompanionSensorState(this.SensorState, this, this.muteLogging);
-    }
+    //   this.companionSensor!.triggerCompanionSensorState(this.SensorState, this, this.muteLogging);
+    // }
   }
 
   // Abstract methods impl
@@ -170,19 +170,19 @@ export class Switch extends Accessory {
 
   //
 
-  private determineSensorState(): number {
-    let sensorState: number;
+  // private determineSensorState(): number {
+  //   let sensorState: number;
 
-    const On: boolean = this.On;
-    if (this.defaultState === Switch.OFF) {
-      sensorState = (On === Switch.OFF) ? BinarySensor.NORMAL : BinarySensor.TRIGGERED;
-    }
-    else {  // (this.defaultState === Switch.ON)
-      sensorState = (On === Switch.ON) ? BinarySensor.NORMAL : BinarySensor.TRIGGERED;
-    }
+  //   const On: boolean = this.On;
+  //   if (this.defaultState === Switch.OFF) {
+  //     sensorState = (On === Switch.OFF) ? BinarySensor.NORMAL : BinarySensor.TRIGGERED;
+  //   }
+  //   else {  // (this.defaultState === Switch.ON)
+  //     sensorState = (On === Switch.ON) ? BinarySensor.NORMAL : BinarySensor.TRIGGERED;
+  //   }
 
-    return sensorState;
-  }
+  //   return sensorState;
+  // }
 
   // Setup stuff
 
@@ -198,15 +198,15 @@ export class Switch extends Accessory {
     );
   }
 
-  private createCompanionSensor(): void {
-    this.companionSensor = CompanionSensor.getTriggerableCompanionSensor(
-      this.platform,
-      this.accessory,
-      this.accessoryConfiguration);
+  // private createCompanionSensor(): void {
+  //   this.companionSensor = CompanionSensor.getTriggerableCompanionSensor(
+  //     this.platform,
+  //     this.accessory,
+  //     this.accessoryConfiguration);
 
-    // Set initial sensor state
-    this.companionSensor!.triggerCompanionSensorState(this.SensorState, this, this.muteLogging);
-  }
+  //   // Set initial sensor state
+  //   this.companionSensor!.triggerCompanionSensorState(this.SensorState, this, this.muteLogging);
+  // }
 
   private restoreRunningTimer(
     cachedTimerStartTime: string,
