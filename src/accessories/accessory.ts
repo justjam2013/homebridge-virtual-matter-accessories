@@ -64,9 +64,7 @@ export abstract class Accessory extends ClustersUtils {
 
     this.log = this.platform.log;    
 
-
-    console.log(JSON.stringify(accessory, null, 2));
-
+    this.log.debug(`[${this.accessoryName}] Accessory context: ${JSON.stringify(accessory, null, 2)}`);
 
     this.log.debug(`[${this.accessoryName}] Accessory context: ${JSON.stringify(accessory.context)}`);
 
