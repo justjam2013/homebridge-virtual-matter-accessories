@@ -114,11 +114,6 @@
                   "description": "Switch resets to default state when timer ends",
                   "type": "boolean"
                 },
-                "hasCompanionSensor": {
-                  "title": "Has a Companion Sensor",
-                  "description": "Switch triggers a sensor when its state changes",
-                  "type": "boolean"
-                },
                 "muteLogging" : {
                   "title": "Mute Logging",
                   "description": "Log information will only be visible when running in debug mode",
@@ -280,34 +275,6 @@
                   }
                 }
               ]
-            },
-            "companionSensor": {
-              "title": "Companion Sensor",
-              "type": "object",
-              "properties": {
-                "name": {
-                  "title": "Name *",
-                  "description": "Sensor name as it will be displayed in HomeKit",
-                  "type": "string"
-                },
-                "type": {
-                  "title": "Type *",
-                  "description": "Sensor type triggered by accessory state change (Critical sensor notifications bypass 'Do Not Disturb' focus mode)",
-                  "type": "string",
-                  "oneOf": [
-                    { "title": "Contact", "enum": ["contact"] },
-                    { "title": "Leak (critical)", "enum": ["leak"] },
-                    { "title": "Motion", "enum": ["motion"] },
-                    { "title": "Occupancy", "enum": ["occupancy"] },
-                    { "title": "Carbon Dioxide (critical)", "enum": ["carbonDioxide"] },
-                    { "title": "Carbon Monoxide (critical)", "enum": ["carbonMonoxide"] },
-                    { "title": "Smoke (critical)", "enum": ["smoke"] }
-                  ]
-                }
-              },
-              "condition": {
-                "functionBody": "return model.devices[arrayIndices].switch && model.devices[arrayIndices].switch.hasCompanionSensor === true;"
-              }
             }
           },
           "allOf": [
@@ -340,27 +307,6 @@
               },
               "then": {
                 "required": [ "resetTimer" ]
-              }
-            },
-            {
-              "if": {
-                "properties": {
-                  "switch": {
-                    "properties": {
-                      "hasCompanionSensor": { "const": true }
-                    },
-                    "required": [ "hasCompanionSensor" ]
-                  }
-                },
-                "required": [ "switch" ]
-              },
-              "then": {
-                "required": [ "companionSensor" ],
-                "properties": {
-                  "companionSensor": {
-                    "required": [ "name", "type" ]
-                  }
-                }
               }
             }
           ]
