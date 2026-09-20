@@ -3,16 +3,8 @@ import type { MatterAccessory } from 'homebridge';
 import { VirtualMatterAccessoriesPlatform } from './platform.js';
 
 import { Accessory } from './accessories/accessory.js';
+
 import { Switch } from './accessories/virtualAccessorySwitch.js';
-
-// import { Trigger } from './sensors/triggers/trigger.js';
-
-// import { CronTrigger } from './sensors/triggers/triggerCron.js';
-// import { IkeaMatterStockTrigger } from './sensors/triggers/triggerIkeaMatterStock.js';
-// import { PingTrigger } from './sensors/triggers/triggerPing.js';
-// import { StartupTrigger } from './sensors/triggers/triggerStartup.js';
-// import { SunEventsTrigger } from './sensors/triggers/triggerSunEvents.js';
-// import { WebhookTrigger } from './sensors/triggers/triggerWebhook.js';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { AccessoryType, BinarySensorType, MeasurementSensorType, TriggerType } from './configuration/schema.js';
