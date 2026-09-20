@@ -27,6 +27,11 @@ export abstract class AccessoryFactory {
   ): Accessory | undefined {
     let virtualAccessory: Accessory | undefined;
 
+    if (accessory === undefined) {
+      platform.log.error(`Error creating accessory for ${accessoryConfiguration.accessoryName}`);
+      return undefined;
+    }
+
     const accessoryType: string = accessoryConfiguration.accessoryType;
 
     switch (accessoryType) {
