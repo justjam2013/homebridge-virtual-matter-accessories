@@ -1,14 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { EndpointType, MatterAccessory, Service } from 'homebridge';
+import { EndpointType, Service } from 'homebridge';
 
 import { VirtualMatterAccessoriesPlatform } from '../platform.js';
 import { AccessoryConfiguration } from '../configuration/configurationAccessory.js';
 
+import { MatterPlatformAccessory } from '../matterPlatformAccessory.js';
+import { ClustersUtils } from '../clustersUtils.js';
 import { VirtualLogger } from '../utils/virtualLogger.js';
 
 import fs from 'fs';
-import { ClustersUtils } from '../clustersUtils.js';
 
 /**
  * Abstract Accessory
@@ -16,7 +17,7 @@ import { ClustersUtils } from '../clustersUtils.js';
 export abstract class Accessory extends ClustersUtils {
 
   readonly platform: VirtualMatterAccessoriesPlatform;
-  readonly accessory: MatterAccessory;
+  readonly accessory: MatterPlatformAccessory;
 
   readonly accessoryConfiguration: AccessoryConfiguration;
   readonly log: VirtualLogger;
@@ -30,7 +31,7 @@ export abstract class Accessory extends ClustersUtils {
 
   constructor(
     platform: VirtualMatterAccessoriesPlatform,
-    accessory: MatterAccessory,
+    accessory: MatterPlatformAccessory,
     accessoryConfiguration: AccessoryConfiguration,
     deviceType: EndpointType,
   ) {
@@ -41,8 +42,8 @@ export abstract class Accessory extends ClustersUtils {
 
     // MatterAccessory interface properties
     this.accessory.manufacturer = 'Virtual Matter Accessories';
-    this.accessory.model = `Virtual Accessory - ${deviceType.name}`;
-    this.accessory.serialNumber = this.accessory.UUID;
+    this.accessory.model = `VMA4H - ${deviceType.name}`;
+    this.accessory.serialNumber = accessoryConfiguration.accessoryID.substring(0, 35);  // Truncate to 35 characters
     this.accessory.firmwareRevision = this.accessory.context.firmwareVersion;
 
     this.accessory.displayName = accessoryConfiguration.accessoryName;
@@ -63,6 +64,8 @@ export abstract class Accessory extends ClustersUtils {
 
     this.log = this.platform.log;    
 
+
+    console.log(JSON.stringify(accessory, null, 2));
 
 
     this.log.debug(`[${this.accessoryName}] Accessory context: ${JSON.stringify(accessory.context)}`);

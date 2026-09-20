@@ -18,7 +18,7 @@ import fs from 'fs';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore <-- TODO remove this line, unless that gives an error
 import packageInfo from '../package.json' with { type: 'json' };
-import { MatterFactory } from './matterFactory.js';
+import { MatterPlatformAccessory } from './matterPlatformAccessory.js';
 
 /**
  * HomebridgePlatform
@@ -188,7 +188,8 @@ export class VirtualMatterAccessoriesPlatform implements DynamicPlatformPlugin {
 
         // create the accessory handler for the restored accessory
         // this is imported from `platformAccessory.ts`
-        const virtualAccessory: Accessory | undefined = AccessoryFactory.createVirtualAccessory(this, cachedAccessory, accessoryConfiguration);
+        const virtualAccessory: Accessory | undefined = AccessoryFactory.createVirtualAccessory(
+          this, new MatterPlatformAccessory(cachedAccessory), accessoryConfiguration);
 
         if (virtualAccessory !== undefined) {
           if (cachedAccessory.displayName !== accessoryConfiguration.accessoryName) {
@@ -211,7 +212,7 @@ export class VirtualMatterAccessoriesPlatform implements DynamicPlatformPlugin {
         this.log.info(`Adding new accessory: ${accessoryConfiguration.accessoryName}`);
 
         // create a new accessory
-        const accessory: MatterAccessory<UnknownContext> = MatterFactory.matterAccessory(
+        const accessory: MatterPlatformAccessory = new MatterPlatformAccessory(
           accessoryConfiguration.accessoryName,
           uuid,
           accessoryConfiguration.accessoryType,
@@ -234,7 +235,7 @@ export class VirtualMatterAccessoriesPlatform implements DynamicPlatformPlugin {
         else {
           // link the accessory to your platform
           this.log.info(`Publishing new accessory: ${accessoryConfiguration.accessoryName}`);
-          this.api.matter!.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+          this.api.matter!.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory.getMatterAccessory()]);
 
           virtualAccessories.push(virtualAccessory);
         }

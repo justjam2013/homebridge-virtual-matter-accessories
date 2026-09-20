@@ -1,4 +1,3 @@
-import type { MatterAccessory } from 'homebridge';
 
 import { VirtualMatterAccessoriesPlatform } from './platform.js';
 
@@ -9,6 +8,7 @@ import { Switch } from './accessories/virtualAccessorySwitch.js';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { AccessoryType, BinarySensorType, MeasurementSensorType, TriggerType } from './configuration/schema.js';
 import { AccessoryConfiguration } from './configuration/configurationAccessory.js';
+import { MatterPlatformAccessory } from './matterPlatformAccessory.js';
 
 /**
  * Virtual Accessory Factory
@@ -23,7 +23,7 @@ export abstract class AccessoryFactory {
 
   static createVirtualAccessory(
     platform: VirtualMatterAccessoriesPlatform,
-    accessory: MatterAccessory,
+    accessory: MatterPlatformAccessory,
     accessoryConfiguration: AccessoryConfiguration,
   ): Accessory | undefined {
     let virtualAccessory: Accessory | undefined;

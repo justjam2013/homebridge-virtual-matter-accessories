@@ -1,4 +1,4 @@
-import type { EndpointType, MatterAccessory } from 'homebridge';
+import type { EndpointType } from 'homebridge';
 
 import { VirtualMatterAccessoriesPlatform } from '../platform.js';
 import { AccessoryConfiguration } from '../configuration/configurationAccessory.js';
@@ -11,6 +11,7 @@ import { TimerConfiguration } from '../configuration/configurationTimer.js';
 import { Utils } from '../utils/utils.js';
 
 import { Duration } from '@js-joda/core';
+import { MatterPlatformAccessory } from '../matterPlatformAccessory.js';
 
 abstract class StorageKeys {
 
@@ -37,7 +38,7 @@ export class Switch extends Accessory {
 
   constructor(
     platform: VirtualMatterAccessoriesPlatform,
-    accessory: MatterAccessory,
+    accessory: MatterPlatformAccessory,
     accessoryConfiguration: AccessoryConfiguration,
   ) {
     const deviceType: EndpointType = platform.api.matter!.deviceTypes.OnOffSwitch;
