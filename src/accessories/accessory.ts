@@ -43,7 +43,7 @@ export abstract class Accessory extends ClustersUtils {
     // MatterAccessory interface properties
     this.accessory.manufacturer = 'Virtual Matter Accessories';
     this.accessory.model = `VMA4H - ${deviceType.name}`;
-    this.accessory.serialNumber = accessoryConfiguration.accessoryID.substring(0, 35);  // Truncate to 35 characters
+    this.accessory.serialNumber = accessoryConfiguration.accessoryID;
     this.accessory.firmwareRevision = this.accessory.context.firmwareVersion;
 
     this.accessory.displayName = accessoryConfiguration.accessoryName;

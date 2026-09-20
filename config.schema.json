@@ -71,7 +71,7 @@
               "title": "Accessory ID",
               "description": "Unique ID for the Accessory (https://www.random.org/). Do not modify once assigned!",
               "type": "string",
-              "maxLength": 35,
+              "maxLength": 32,
               "required": true,
               "pattern": "^[A-Za-z0-9\\-]{5,}$"
             },
@@ -79,7 +79,7 @@
               "title": "Accessory Name",
               "description": "Accessory name as it will be displayed in the Home app",
               "type": "string",
-              "maxLength": 35,
+              "maxLength": 32,
               "required": true,
               "pattern": "^(?=[\\p{L}\\p{N}])[\\p{L}\\p{N}\\s']*(?<=[\\p{L}\\p{N}])$"
             },
