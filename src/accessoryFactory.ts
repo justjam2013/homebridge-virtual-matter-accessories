@@ -1,5 +1,3 @@
-import { EndpointType } from 'homebridge';
-
 import { VirtualMatterAccessoriesPlatform } from './platform.js';
 import { MatterPlatformAccessory } from './matterPlatformAccessory.js';
 
@@ -33,7 +31,6 @@ export abstract class AccessoryFactory {
 
     switch (accessoryType) {
     case AccessoryType.Switch:
-      accessoryConfiguration.deviceType = platform.api.matter!.deviceTypes.OnOffSwitch as EndpointType;
       virtualAccessory = new Switch(platform, accessory, accessoryConfiguration);
       break;
     default:

@@ -36,7 +36,7 @@ export class MatterPlatformAccessory implements MatterAccessory {
         deviceType: deviceType!,
         serialNumber: '',
         manufacturer: 'Virtual Matter Accessories',
-        model: `VMA4H - ${deviceType!.name}`,
+        model: `VMA4H - ${deviceType?.name}`,
         context: {},
       };
     }
