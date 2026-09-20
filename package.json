@@ -62,7 +62,7 @@
     "typeserializer": "^0.2.5"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.1",
+    "@eslint/js": "^10.0.1",
     "@types/cheerio": "^1.0.0",
     "@types/node": "^26.0.0",
     "eslint": "^10.0.1",
