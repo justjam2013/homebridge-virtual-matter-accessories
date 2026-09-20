@@ -2,6 +2,7 @@ import type {
   EndpointType,
   MatterAccessory,
 } from 'homebridge';
+import { VirtualLogger } from './utils/virtualLogger.js';
 
 /**
  * NOTE: this class should not be used as an instance of MatterAccessory
@@ -17,14 +18,56 @@ export class MatterPlatformAccessory implements MatterAccessory {
 
   private readonly matterAccessory: MatterAccessory;
 
-  constructor(
+  static create(
+    displayName: string,
+    uuid: string,
+    deviceType: EndpointType,
+    log: VirtualLogger,
+  ): MatterPlatformAccessory | undefined {
+    try {
+      return new MatterPlatformAccessory(
+        displayName,
+        uuid,
+        deviceType,
+      );
+    }
+    catch (error) {
+      if (!(error instanceof RangeError)) {
+        throw error;
+      }
+
+      log.error(`Cannot create MatterPlatformAccessory: '${error}'`);
+      return undefined;
+    }
+  }
+
+  static fromMatterAccessory(
+    matterAccessory: MatterAccessory,
+    log: VirtualLogger,
+  ): MatterPlatformAccessory | undefined {
+    try {
+      return new MatterPlatformAccessory(
+        matterAccessory,
+      );
+    }
+    catch (error) {
+      if (!(error instanceof RangeError)) {
+        throw error;
+      }
+
+      log.error(`Cannot create MatterPlatformAccessory: '${error}'`);
+      return undefined;
+    }
+  }
+
+  private constructor(
     displayName: string,
     uuid: string,
     deviceType: EndpointType,
   );
-  constructor(matterAccessory: MatterAccessory);
+  private constructor(matterAccessory: MatterAccessory);
 
-  constructor(
+  private constructor(
     displayNameOrMatterAccessory: string | MatterAccessory,
     uuid?: string,
     deviceType?: EndpointType,

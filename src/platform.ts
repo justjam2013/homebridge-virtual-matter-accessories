@@ -188,8 +188,14 @@ export class VirtualMatterAccessoriesPlatform implements DynamicPlatformPlugin {
 
         // create the accessory handler for the restored accessory
         // this is imported from `platformAccessory.ts`
-        const virtualAccessory: Accessory | undefined = AccessoryFactory.createVirtualAccessory(
-          this, new MatterPlatformAccessory(cachedAccessory), accessoryConfiguration);
+        const accessory: MatterPlatformAccessory | undefined = MatterPlatformAccessory.fromMatterAccessory(cachedAccessory, this.log);
+
+        if (accessory === undefined) {
+          this.log.error(`Error restoring existing accessory: ${accessoryConfiguration.accessoryName}`);
+          continue;
+        }
+
+        const virtualAccessory: Accessory | undefined = AccessoryFactory.createVirtualAccessory(this, accessory!, accessoryConfiguration);
 
         if (virtualAccessory === undefined) {
           this.log.error(`Error restoring existing accessory: ${accessoryConfiguration.accessoryName}`);
@@ -212,23 +218,29 @@ export class VirtualMatterAccessoriesPlatform implements DynamicPlatformPlugin {
         this.log.info(`Adding new accessory: ${accessoryConfiguration.accessoryName}`);
 
         // create a new accessory
-        const accessory: MatterPlatformAccessory = new MatterPlatformAccessory(
+        const accessory: MatterPlatformAccessory | undefined = MatterPlatformAccessory.create(
           accessoryConfiguration.accessoryName,
           uuid,
           accessoryConfiguration.deviceType!,
+          this.log,
         );
+
+        if (accessory === undefined) {
+          this.log.error(`Error creating new accessory: ${accessoryConfiguration.accessoryName}`);
+          continue;
+        }
 
         // store a copy of the device configuration in the `accessory.context`
         // the `context` property can be used to store any data about the accessory you may need
-        accessory.context.firmwareVersion = this.version;
+        accessory!.context.firmwareVersion = this.version;
 
         const storagePath: string = path.join(this.api.user.persistPath(), `VA4HB_${accessoryConfiguration.accessoryID}.json`);
-        accessory.context.storagePath = storagePath;
+        accessory!.context.storagePath = storagePath;
         this.log.debug(`Storage path if stateful accessory: ${storagePath}`);
 
         // create the accessory handler for the newly create accessory
         // this is imported from `platformAccessory.ts`
-        const virtualAccessory: Accessory | undefined = AccessoryFactory.createVirtualAccessory(this, accessory, accessoryConfiguration);
+        const virtualAccessory: Accessory | undefined = AccessoryFactory.createVirtualAccessory(this, accessory!, accessoryConfiguration);
 
         if (virtualAccessory === undefined) {
           this.log.error(`Error adding new accessory: ${accessoryConfiguration.accessoryName}`);
