@@ -1,7 +1,5 @@
 /* eslint-disable curly */
 
-import { Categories } from 'homebridge';
-
 import { Validatable } from './validatable.js';
 
 import { AirPurifierConfiguration } from './accessories/configurationAirPurifier.js';
@@ -183,9 +181,6 @@ export class AccessoryConfiguration {
 
   // ********************* Configuration enrichment fields *********************
 
-  // External accessory category
-  category?: Categories;
-
   // Television input source
   inputSource!: InputSourceConfiguration;
 
@@ -269,12 +264,10 @@ export class AccessoryConfiguration {
     case AccessoryType.SecuritySystem:
       return this.isErrorless(this.securitySystem, this.fieldNames.securitySystem!);
     case AccessoryType.Speaker:
-      this.category = Categories.SPEAKER;
       return this.isErrorless(this.speaker, this.fieldNames.speaker!);
     case AccessoryType.Switch:
       return this.isErrorlessSwitch(this.switch, this.fieldNames.switch!);
     case AccessoryType.Television:
-      this.category = Categories.TELEVISION;
       return this.isErrorless(this.television, this.fieldNames.television!);
     case AccessoryType.Thermostat:
       return this.isErrorless(this.thermostat, this.fieldNames.thermostat!);

@@ -2,7 +2,7 @@
   "name": "homebridge-virtual-matter-accessories",
   "displayName": "Virtual Matter Accessories",
   "type": "module",
-  "version": "3.16.1",
+  "version": "1.0.0",
   "description": "Virtual Matter accessories for Homebridge.",
   "author": "justjam2023 (Renzo Zanelli - renzo.zanelli6@gmail.com)",
   "license": "MIT",
@@ -52,12 +52,18 @@
   "dependencies": {
     "@js-joda/core": "^6.0.0",
     "@js-joda/timezone": "^2.22.0",
+    "@justjam2013/net-ping": "^2.0.0",
+    "@types/express": "^5.0.3",
+    "cheerio": "^1.2.0",
+    "croner": "^10.0.1",
+    "express": "^5.1.0",
     "homebridge-lib": "^8.0.0",
     "reflect-metadata": "^0.2.2",
     "typeserializer": "^0.2.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@types/cheerio": "^1.0.0",
     "@types/node": "^26.0.0",
     "eslint": "^10.0.1",
     "homebridge": "^2.0.0-beta.64",
@@ -68,6 +74,7 @@
     "typescript-eslint": "^8.46.4"
   },
   "allowScripts": {
+    "@justjam2013/raw-socket": true,
     "fsevents": true
   }
 }

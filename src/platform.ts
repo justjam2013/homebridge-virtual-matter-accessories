@@ -1,5 +1,5 @@
 import { APIEvent } from 'homebridge';
-import type { API, Characteristic, DynamicPlatformPlugin, Logging, PlatformAccessory, PlatformConfig, Service, UnknownContext } from 'homebridge';
+import type { API, DynamicPlatformPlugin, Logging, MatterAccessory, PlatformAccessory, PlatformConfig, UnknownContext } from 'homebridge';
 
 import { Accessory } from './accessories/accessory.js';
 import { AccessoryConfiguration } from './configuration/configurationAccessory.js';
@@ -7,8 +7,8 @@ import { AccessoryFactory } from './accessoryFactory.js';
 import { ConfigurationUtils } from './configuration/utils.js';
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings.js';
 import { VirtualLogger, VirtualLogLevel } from './utils/virtualLogger.js';
-import { WebhookServerConfiguration } from './configuration/configurationWebhookServer.js';
-import { WebhookServer } from './webhookServer.js';
+// import { WebhookServerConfiguration } from './configuration/configurationWebhookServer.js';
+// import { WebhookServer } from './webhookServer.js';
 
 import { shutdownSignal } from './utils/utils.js';
 
@@ -18,26 +18,21 @@ import fs from 'fs';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore <-- TODO remove this line, unless that gives an error
 import packageInfo from '../package.json' with { type: 'json' };
-
-export let CharacteristicType: typeof Characteristic;
-export let ServiceType: typeof Service;
+import { MatterPlatformAccessory } from './matterPlatformAccessory.js';
 
 /**
  * HomebridgePlatform
  */
 export class VirtualMatterAccessoriesPlatform implements DynamicPlatformPlugin {
 
-  static platformName: string = 'Virtual Accessories Platform';
-
-  public readonly Service: typeof Service;
-  public readonly Characteristic: typeof Characteristic;
+  static platformName: string = 'Virtual Matter Accessories Platform';
 
   public readonly log: VirtualLogger;
 
-  private readonly sensorUpdateServer?: WebhookServer;
+  // private readonly sensorUpdateServer?: WebhookServer;
 
   // this is used to track restored cached accessories
-  public readonly cachedAccessories: PlatformAccessory[] = [];
+  public readonly cachedAccessories: MatterAccessory[] = [];
 
   public version: string = packageInfo.version;
 
@@ -54,15 +49,20 @@ export class VirtualMatterAccessoriesPlatform implements DynamicPlatformPlugin {
       console.log(warning.stack);
     });
 
-    this.Service = api.hap.Service;
-    this.Characteristic = api.hap.Characteristic;
-
-    // Set the values for types
-    CharacteristicType = this.Characteristic;
-    ServiceType = this.Service;
-
     // This is for dev purposes only to control the output of this plugin
     this.log = new VirtualLogger(log, VirtualLogLevel.DEBUG);
+
+    // Does the user have a version of Homebridge that is compatible with matter?
+    if (!this.api.isMatterAvailable?.()) {
+      this.log.error('Matter is not supported in this version of Homebridge. Update to a newer version of Homebridge.');
+      return;
+    }
+
+    // Check if the user has matter enabled, this means:
+    if (!this.api.isMatterEnabled?.()) {
+      this.log.warn('Matter support is not enabled. Enable Matter support in Homebridge Settings.');
+      return;
+    }
 
     // Validate platform name
     const platformName: string | undefined = this.config.name;
@@ -75,24 +75,24 @@ export class VirtualMatterAccessoriesPlatform implements DynamicPlatformPlugin {
     }
 
     // Create webhook server
-    const sensorServerConfig: WebhookServerConfiguration | undefined = new ConfigurationUtils(this.log)
-      .deserializeWebhookServerConfig(this.config.sensorServer);
-    if (sensorServerConfig?.enabled) {
-      const prefix: string = 'sensorServer';
-      let isValid: boolean = false;
-      let errorFields: string[] = [ prefix ];
-      [isValid, errorFields] = sensorServerConfig.isValid(prefix);
+    // const sensorServerConfig: WebhookServerConfiguration | undefined = new ConfigurationUtils(this.log)
+    //   .deserializeWebhookServerConfig(this.config.sensorServer);
+    // if (sensorServerConfig?.enabled) {
+    //   const prefix: string = 'sensorServer';
+    //   let isValid: boolean = false;
+    //   let errorFields: string[] = [ prefix ];
+    //   [isValid, errorFields] = sensorServerConfig.isValid(prefix);
 
-      if (!isValid) {
-        this.log.error(`Sensor Server configuration is invalid: ${JSON.stringify(sensorServerConfig)}`);
-        this.log.error(`Invalid fields: ${errorFields.toString()}`);
-      }
-      else {
-        this.log.debug(`Sensor Server configuration is valid: ${JSON.stringify(sensorServerConfig)}`);
+    //   if (!isValid) {
+    //     this.log.error(`Sensor Server configuration is invalid: ${JSON.stringify(sensorServerConfig)}`);
+    //     this.log.error(`Invalid fields: ${errorFields.toString()}`);
+    //   }
+    //   else {
+    //     this.log.debug(`Sensor Server configuration is valid: ${JSON.stringify(sensorServerConfig)}`);
         
-        this.sensorUpdateServer = new WebhookServer(this.log, parseInt(sensorServerConfig!.port));
-      }
-    }
+    //     this.sensorUpdateServer = new WebhookServer(this.log, parseInt(sensorServerConfig!.port));
+    //   }
+    // }
     
     this.log.debug('Finished initializing platform');
 
@@ -100,10 +100,10 @@ export class VirtualMatterAccessoriesPlatform implements DynamicPlatformPlugin {
     // Dynamic Platform plugins should only register new accessories after this event was fired,
     // in order to ensure they weren't added to homebridge already. This event can also be used
     // to start discovery of new accessories.
-    this.api.on(APIEvent.DID_FINISH_LAUNCHING, () => {
+    this.api.on(APIEvent.DID_FINISH_LAUNCHING, async () => {
       log.debug('Executing didFinishLaunching callback');
       // run the method to discover / register your devices as accessories
-      this.discoverDevices();
+      await this.discoverDevices();
 
       this.log.info(`Running Virtual Accessories For Homebridge v${this.version}`);
     });
@@ -112,7 +112,16 @@ export class VirtualMatterAccessoriesPlatform implements DynamicPlatformPlugin {
       log.debug('Executing shutdown callback');
 
       shutdownSignal.isShuttingDown = true;
-      this.sensorUpdateServer?.stop();
+      // this.sensorUpdateServer?.stop();
+
+      // this.cachedAccessories.forEach((device) => {
+      //   try {
+      //     device.shutdown();
+      //   }
+      //   catch (error) {
+      //     this.log.debug(`Failed to shut down a device cleanly: ${error}`);
+      //   }
+      // });
     });
   }
 
@@ -120,7 +129,17 @@ export class VirtualMatterAccessoriesPlatform implements DynamicPlatformPlugin {
    * This function is invoked when homebridge restores cached accessories from disk at startup.
    * It should be used to set up event handlers for characteristics and update respective values.
    */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   configureAccessory(accessory: PlatformAccessory) {
+    // This is not used for Matter accessories - use configureMatterAccessory instead
+    // This plugin does not have any hap accessories, so here we can comment this out
+  }
+
+  /**
+   * This function is invoked when homebridge restores cached accessories from disk at startup.
+   * It should be used to set up event handlers for characteristics and update respective values.
+   */
+  configureMatterAccessory(accessory: MatterAccessory) {
     this.log.info(`Loading accessory from cache: ${accessory.displayName}`);
 
     // add the restored accessory to the accessories cache, so we can track if it has already been registered
@@ -131,7 +150,7 @@ export class VirtualMatterAccessoriesPlatform implements DynamicPlatformPlugin {
    * Accessories must only be registered once, previously created accessories
    * must not be registered again to prevent "duplicate UUID" errors.
    */
-  discoverDevices() {
+  async discoverDevices(): Promise<void> {
     let configDevices = this.config.devices;
 
     if (configDevices === undefined) {
@@ -150,11 +169,11 @@ export class VirtualMatterAccessoriesPlatform implements DynamicPlatformPlugin {
       // generate a unique id for the accessory this should be generated from
       // something globally unique, but constant, for example, the device serial
       // number or MAC address
-      const uuid: string = this.api.hap.uuid.generate(accessoryConfiguration.accessoryID);
+      const uuid: string = this.api.matter!.uuid.generate(accessoryConfiguration.accessoryID);
 
       // see if an accessory with the same uuid has already been registered and restored from
       // the cached devices we stored in the `configureAccessory` method above
-      const cachedAccessory: PlatformAccessory<UnknownContext> | undefined = this.cachedAccessories.find(accessory => accessory.UUID === uuid);
+      const cachedAccessory: MatterAccessory<UnknownContext> | undefined = this.cachedAccessories.find(accessory => accessory.UUID === uuid);
 
       if (cachedAccessory) {
         // the accessory already exists
@@ -169,23 +188,23 @@ export class VirtualMatterAccessoriesPlatform implements DynamicPlatformPlugin {
 
         // create the accessory handler for the restored accessory
         // this is imported from `platformAccessory.ts`
-        const virtualAccessory: Accessory | undefined = AccessoryFactory.createVirtualAccessory(this, cachedAccessory, accessoryConfiguration);
+        const virtualAccessory: Accessory | undefined = AccessoryFactory.createVirtualAccessory(
+          this, new MatterPlatformAccessory(cachedAccessory), accessoryConfiguration);
 
-        if (virtualAccessory !== undefined) {
+        if (virtualAccessory === undefined) {
+          this.log.error(`Error restoring existing accessory: ${accessoryConfiguration.accessoryName}`);
+        }
+        else {
           if (cachedAccessory.displayName !== accessoryConfiguration.accessoryName) {
             this.log.info(`Updating accessory name from ${cachedAccessory.displayName} to ${accessoryConfiguration.accessoryName}`);
 
-            virtualAccessory.updateInformationServiceConfiguredName();
-            cachedAccessory.updateDisplayName(accessoryConfiguration.accessoryName);
+            cachedAccessory.displayName = accessoryConfiguration.accessoryName;
           }
           // Just update all the cached accessories
-          this.api.updatePlatformAccessories([cachedAccessory]);
+          await this.api.matter!.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [virtualAccessory.accessory.getMatterAccessory()]);
           this.log.debug(`Updating cache: ${accessoryConfiguration.accessoryName}`);
 
           virtualAccessories.push(virtualAccessory);
-        }
-        else {
-          this.log.error(`Error restoring existing accessory: ${accessoryConfiguration.accessoryName}`);
         }
       }
       else {
@@ -193,10 +212,10 @@ export class VirtualMatterAccessoriesPlatform implements DynamicPlatformPlugin {
         this.log.info(`Adding new accessory: ${accessoryConfiguration.accessoryName}`);
 
         // create a new accessory
-        const accessory: PlatformAccessory<UnknownContext> = new this.api.platformAccessory(
+        const accessory: MatterPlatformAccessory = new MatterPlatformAccessory(
           accessoryConfiguration.accessoryName,
           uuid,
-          accessoryConfiguration.category,
+          accessoryConfiguration.accessoryType,
         );
 
         // store a copy of the device configuration in the `accessory.context`
@@ -210,17 +229,15 @@ export class VirtualMatterAccessoriesPlatform implements DynamicPlatformPlugin {
         // create the accessory handler for the newly create accessory
         // this is imported from `platformAccessory.ts`
         const virtualAccessory: Accessory | undefined = AccessoryFactory.createVirtualAccessory(this, accessory, accessoryConfiguration);
+
         if (virtualAccessory === undefined) {
           this.log.error(`Error adding new accessory: ${accessoryConfiguration.accessoryName}`);
-        }
-        else if (virtualAccessory.isExternalAccessory()) {
-          this.log.info(`Publishing new external accessory: ${accessoryConfiguration.accessoryName}`);
-          this.api.publishExternalAccessories(PLUGIN_NAME, [accessory]);
         }
         else {
           // link the accessory to your platform
           this.log.info(`Publishing new accessory: ${accessoryConfiguration.accessoryName}`);
-          this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+          
+          await this.api.matter!.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [virtualAccessory.accessory.getMatterAccessory()]);
 
           virtualAccessories.push(virtualAccessory);
         }
@@ -232,14 +249,14 @@ export class VirtualMatterAccessoriesPlatform implements DynamicPlatformPlugin {
 
     // loop over the cached accessories and unregister each one if it is not in the config
     for (const cachedAccessory of this.cachedAccessories) {
-      const configuredDevice = configDevices.find(device => this.api.hap.uuid.generate(device.accessoryID) === cachedAccessory.UUID);
+      const configuredDevice = configDevices.find(device => this.api.matter!.uuid.generate(device.accessoryID) === cachedAccessory.UUID);
 
       // If there is no configured device for this cached accessory
       if (!configuredDevice) {
         this.log.warn(`Removing deleted accessory: ${cachedAccessory.displayName}`);
 
         // Unregister the accessory from the platform
-        this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [cachedAccessory]);
+        await this.api.matter!.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [cachedAccessory]);
 
         // Delete any stateful info, if it exists
         const storagePath: string = cachedAccessory.context.storagePath as string;
@@ -257,8 +274,8 @@ export class VirtualMatterAccessoriesPlatform implements DynamicPlatformPlugin {
     }
 
     // Start sensor server
-    this.sensorUpdateServer?.addAccessories(virtualAccessories);
-    this.sensorUpdateServer?.start();
+    // this.sensorUpdateServer?.addAccessories(virtualAccessories);
+    // this.sensorUpdateServer?.start();
   }
 
   private deserializeAccessoryConfigurations(
