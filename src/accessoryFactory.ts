@@ -27,22 +27,34 @@ export abstract class AccessoryFactory {
   ): Accessory | undefined {
     let virtualAccessory: Accessory | undefined;
 
-    if (accessory === undefined) {
-      platform.log.error(`Error creating accessory for ${accessoryConfiguration.accessoryName}`);
-      return undefined;
-    }
-
     const accessoryType: string = accessoryConfiguration.accessoryType;
 
     switch (accessoryType) {
     case AccessoryType.Switch:
-      virtualAccessory = new Switch(platform, accessory, accessoryConfiguration);
+      try {
+        virtualAccessory = new Switch(platform, accessory, accessoryConfiguration);
+      }
+      catch (error) {
+        AccessoryFactory.handleError(error, platform, accessoryConfiguration);
+      }
       break;
     default:
       platform.log.error(`Error creating accessory. Invalid accessory type: ${accessoryType}`);
     }
 
     return virtualAccessory;
+  }
+
+  private static handleError(
+    error: unknown,
+    platform: VirtualMatterAccessoriesPlatform,
+    accessoryConfiguration: AccessoryConfiguration,
+  ): void {
+    if (!(error instanceof RangeError)) {
+      throw error;
+    }
+
+    platform.log.error(`Error creating accessory for ${accessoryConfiguration.accessoryName}: '${error}'`);
   }
 
   // static createVirtualBinarySensor(
