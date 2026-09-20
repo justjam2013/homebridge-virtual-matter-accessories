@@ -100,10 +100,10 @@ export class VirtualMatterAccessoriesPlatform implements DynamicPlatformPlugin {
     // Dynamic Platform plugins should only register new accessories after this event was fired,
     // in order to ensure they weren't added to homebridge already. This event can also be used
     // to start discovery of new accessories.
-    this.api.on(APIEvent.DID_FINISH_LAUNCHING, () => {
+    this.api.on(APIEvent.DID_FINISH_LAUNCHING, async () => {
       log.debug('Executing didFinishLaunching callback');
       // run the method to discover / register your devices as accessories
-      this.discoverDevices();
+      await this.discoverDevices();
 
       this.log.info(`Running Virtual Accessories For Homebridge v${this.version}`);
     });
@@ -150,7 +150,7 @@ export class VirtualMatterAccessoriesPlatform implements DynamicPlatformPlugin {
    * Accessories must only be registered once, previously created accessories
    * must not be registered again to prevent "duplicate UUID" errors.
    */
-  discoverDevices() {
+  async discoverDevices(): Promise<void> {
     let configDevices = this.config.devices;
 
     if (configDevices === undefined) {
@@ -191,20 +191,20 @@ export class VirtualMatterAccessoriesPlatform implements DynamicPlatformPlugin {
         const virtualAccessory: Accessory | undefined = AccessoryFactory.createVirtualAccessory(
           this, new MatterPlatformAccessory(cachedAccessory), accessoryConfiguration);
 
-        if (virtualAccessory !== undefined) {
+        if (virtualAccessory === undefined) {
+          this.log.error(`Error restoring existing accessory: ${accessoryConfiguration.accessoryName}`);
+        }
+        else {
           if (cachedAccessory.displayName !== accessoryConfiguration.accessoryName) {
             this.log.info(`Updating accessory name from ${cachedAccessory.displayName} to ${accessoryConfiguration.accessoryName}`);
 
             cachedAccessory.displayName = accessoryConfiguration.accessoryName;
           }
           // Just update all the cached accessories
-          this.api.matter!.updatePlatformAccessories([cachedAccessory]);
+          await this.api.matter!.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [virtualAccessory.accessory.getMatterAccessory()]);
           this.log.debug(`Updating cache: ${accessoryConfiguration.accessoryName}`);
 
           virtualAccessories.push(virtualAccessory);
-        }
-        else {
-          this.log.error(`Error restoring existing accessory: ${accessoryConfiguration.accessoryName}`);
         }
       }
       else {
@@ -229,13 +229,15 @@ export class VirtualMatterAccessoriesPlatform implements DynamicPlatformPlugin {
         // create the accessory handler for the newly create accessory
         // this is imported from `platformAccessory.ts`
         const virtualAccessory: Accessory | undefined = AccessoryFactory.createVirtualAccessory(this, accessory, accessoryConfiguration);
+
         if (virtualAccessory === undefined) {
           this.log.error(`Error adding new accessory: ${accessoryConfiguration.accessoryName}`);
         }
         else {
           // link the accessory to your platform
           this.log.info(`Publishing new accessory: ${accessoryConfiguration.accessoryName}`);
-          this.api.matter!.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory.getMatterAccessory()]);
+          
+          await this.api.matter!.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [virtualAccessory.accessory.getMatterAccessory()]);
 
           virtualAccessories.push(virtualAccessory);
         }
@@ -254,7 +256,7 @@ export class VirtualMatterAccessoriesPlatform implements DynamicPlatformPlugin {
         this.log.warn(`Removing deleted accessory: ${cachedAccessory.displayName}`);
 
         // Unregister the accessory from the platform
-        this.api.matter!.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [cachedAccessory]);
+        await this.api.matter!.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [cachedAccessory]);
 
         // Delete any stateful info, if it exists
         const storagePath: string = cachedAccessory.context.storagePath as string;

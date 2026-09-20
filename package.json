@@ -2,7 +2,7 @@
   "name": "homebridge-virtual-matter-accessories",
   "displayName": "Virtual Matter Accessories",
   "type": "module",
-  "version": "3.16.1",
+  "version": "1.0.0",
   "description": "Virtual Matter accessories for Homebridge.",
   "author": "justjam2023 (Renzo Zanelli - renzo.zanelli6@gmail.com)",
   "license": "MIT",
