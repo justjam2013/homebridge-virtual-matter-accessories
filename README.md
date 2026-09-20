@@ -48,7 +48,6 @@ You do not have to volunteer to translate it, but hopefully will provide feedbac
   - [Known Issues](#known-issues)
     - [Issues with Homebridge UI:](#issues-with-homebridge-ui)
     - [Issues with underlying frameworks:](#issues-with-underlying-frameworks)
-    - [Issues with HomeKit](#issues-with-homekit)
   - [What if I run into a problem?](#what-if-i-run-into-a-problem)
 </details>
 
