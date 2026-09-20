@@ -5,18 +5,14 @@ import { VirtualMatterAccessoriesPlatform } from './platform.js';
 import { Accessory } from './accessories/accessory.js';
 import { Switch } from './accessories/virtualAccessorySwitch.js';
 
-import { BinarySensor } from './sensors/binarySensor.js';
+// import { Trigger } from './sensors/triggers/trigger.js';
 
-// import { ContactSensor } from './sensors/virtualSensorContact.js';
-
-import { Trigger } from './sensors/triggers/trigger.js';
-
-import { CronTrigger } from './sensors/triggers/triggerCron.js';
-import { IkeaMatterStockTrigger } from './sensors/triggers/triggerIkeaMatterStock.js';
-import { PingTrigger } from './sensors/triggers/triggerPing.js';
-import { StartupTrigger } from './sensors/triggers/triggerStartup.js';
-import { SunEventsTrigger } from './sensors/triggers/triggerSunEvents.js';
-import { WebhookTrigger } from './sensors/triggers/triggerWebhook.js';
+// import { CronTrigger } from './sensors/triggers/triggerCron.js';
+// import { IkeaMatterStockTrigger } from './sensors/triggers/triggerIkeaMatterStock.js';
+// import { PingTrigger } from './sensors/triggers/triggerPing.js';
+// import { StartupTrigger } from './sensors/triggers/triggerStartup.js';
+// import { SunEventsTrigger } from './sensors/triggers/triggerSunEvents.js';
+// import { WebhookTrigger } from './sensors/triggers/triggerWebhook.js';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { AccessoryType, BinarySensorType, MeasurementSensorType, TriggerType } from './configuration/schema.js';
@@ -114,36 +110,36 @@ export abstract class AccessoryFactory {
   //   return virtualSensor;
   // }
 
-  static createTrigger(
-    sensor: BinarySensor,
-    triggerType: string,
-    name: string,
-  ): Trigger | undefined {
-    let trigger: Trigger | undefined;
+  // static createTrigger(
+  //   sensor: BinarySensor,
+  //   triggerType: string,
+  //   name: string,
+  // ): Trigger | undefined {
+  //   let trigger: Trigger | undefined;
 
-    switch (triggerType) {
-    case TriggerType.Cron:
-      trigger = new CronTrigger(sensor, name);
-      break;
-    case TriggerType.IkeaMatterStock:
-      trigger = new IkeaMatterStockTrigger(sensor, name);
-      break;
-    case TriggerType.Ping:
-      trigger = new PingTrigger(sensor, name);
-      break;
-    case TriggerType.Startup:
-      trigger = new StartupTrigger(sensor, name);
-      break;
-    case TriggerType.SunEvents:
-      trigger = new SunEventsTrigger(sensor, name);
-      break;
-    case TriggerType.Webhook:
-      trigger = new WebhookTrigger(sensor, name);
-      break;
-    default:
-      sensor.log.error('Error creating trigger. Invalid trigger type:', [triggerType]);
-    }
+  //   switch (triggerType) {
+  //   case TriggerType.Cron:
+  //     trigger = new CronTrigger(sensor, name);
+  //     break;
+  //   case TriggerType.IkeaMatterStock:
+  //     trigger = new IkeaMatterStockTrigger(sensor, name);
+  //     break;
+  //   case TriggerType.Ping:
+  //     trigger = new PingTrigger(sensor, name);
+  //     break;
+  //   case TriggerType.Startup:
+  //     trigger = new StartupTrigger(sensor, name);
+  //     break;
+  //   case TriggerType.SunEvents:
+  //     trigger = new SunEventsTrigger(sensor, name);
+  //     break;
+  //   case TriggerType.Webhook:
+  //     trigger = new WebhookTrigger(sensor, name);
+  //     break;
+  //   default:
+  //     sensor.log.error('Error creating trigger. Invalid trigger type:', [triggerType]);
+  //   }
 
-    return trigger;
-  }
+  //   return trigger;
+  // }
 }
