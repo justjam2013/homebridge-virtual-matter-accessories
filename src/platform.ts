@@ -249,7 +249,7 @@ export class VirtualMatterAccessoriesPlatform implements DynamicPlatformPlugin {
 
     // loop over the cached accessories and unregister each one if it is not in the config
     for (const cachedAccessory of this.cachedAccessories) {
-      const configuredDevice = configDevices.find(device => this.api.hap.uuid.generate(device.accessoryID) === cachedAccessory.UUID);
+      const configuredDevice = configDevices.find(device => this.api.matter!.uuid.generate(device.accessoryID) === cachedAccessory.UUID);
 
       // If there is no configured device for this cached accessory
       if (!configuredDevice) {

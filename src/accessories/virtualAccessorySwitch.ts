@@ -123,9 +123,6 @@ export class Switch extends Accessory {
   // On
 
   async setOnHandler(value: boolean) {
-    console.error(`Calling "setOnHandler" with value ${value}`);
-    
-
     const On: boolean = value;
     this.On = On;
     this.log.info(`[${this.accessoryName}] Setting State: ${Switch.getOnName(On)}`, this.muteLogging);
