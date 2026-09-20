@@ -41,6 +41,7 @@ import { AccessoryType, TriggerType } from './schema.js';
 import { Utils } from '../utils/utils.js';
 
 import { Type } from 'typeserializer';
+import { EndpointType } from 'homebridge';
 
 /**
  * 
@@ -180,6 +181,8 @@ export class AccessoryConfiguration {
     webhookTrigger!: WebhookTriggerConfiguration;
 
   // ********************* Configuration enrichment fields *********************
+
+  deviceType?: EndpointType;
 
   // Television input source
   inputSource!: InputSourceConfiguration;

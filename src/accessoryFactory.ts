@@ -1,5 +1,5 @@
-
 import { VirtualMatterAccessoriesPlatform } from './platform.js';
+import { MatterPlatformAccessory } from './matterPlatformAccessory.js';
 
 import { Accessory } from './accessories/accessory.js';
 
@@ -8,7 +8,6 @@ import { Switch } from './accessories/virtualAccessorySwitch.js';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { AccessoryType, BinarySensorType, MeasurementSensorType, TriggerType } from './configuration/schema.js';
 import { AccessoryConfiguration } from './configuration/configurationAccessory.js';
-import { MatterPlatformAccessory } from './matterPlatformAccessory.js';
 
 /**
  * Virtual Accessory Factory

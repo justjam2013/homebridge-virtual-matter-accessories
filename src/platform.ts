@@ -5,6 +5,7 @@ import { Accessory } from './accessories/accessory.js';
 import { AccessoryConfiguration } from './configuration/configurationAccessory.js';
 import { AccessoryFactory } from './accessoryFactory.js';
 import { ConfigurationUtils } from './configuration/utils.js';
+import { MatterPlatformAccessory } from './matterPlatformAccessory.js';
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings.js';
 import { VirtualLogger, VirtualLogLevel } from './utils/virtualLogger.js';
 // import { WebhookServerConfiguration } from './configuration/configurationWebhookServer.js';
@@ -18,7 +19,6 @@ import fs from 'fs';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore <-- TODO remove this line, unless that gives an error
 import packageInfo from '../package.json' with { type: 'json' };
-import { MatterPlatformAccessory } from './matterPlatformAccessory.js';
 
 /**
  * HomebridgePlatform
@@ -215,7 +215,7 @@ export class VirtualMatterAccessoriesPlatform implements DynamicPlatformPlugin {
         const accessory: MatterPlatformAccessory = new MatterPlatformAccessory(
           accessoryConfiguration.accessoryName,
           uuid,
-          accessoryConfiguration.accessoryType,
+          accessoryConfiguration.deviceType!,
         );
 
         // store a copy of the device configuration in the `accessory.context`
