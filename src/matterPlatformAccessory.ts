@@ -1,34 +1,42 @@
-import type { EndpointType, MatterAccessory } from 'homebridge';
+import type {
+  EndpointType,
+  MatterAccessory,
+} from 'homebridge';
 
-export class MatterPlatformAccessory {
-
-  private static readonly MAXIMUM_STRING_LENGTH: number = 35;
+/**
+ * NOTE: this class should not be used as an instance of MatterAccessory
+ * due to Homebridge code using object spread. So this class would cause
+ * that code to fail.
+ * 
+ * The 'implements MatterAccessory' is solely to ensure that this class
+ * fully wraps MatterAccessory
+ */
+export class MatterPlatformAccessory implements MatterAccessory {
+  private static readonly MAXIMUM_BASIC_INFORMATION_LENGTH = 32;
+  private static readonly MAXIMUM_VERSION_LENGTH = 64;
 
   private readonly matterAccessory: MatterAccessory;
 
   constructor(
     displayName: string,
     uuid: string,
-    accessoryType: string,
+    deviceType: EndpointType,
   );
-
-  constructor(
-    matterAccessory: MatterAccessory,
-  );
+  constructor(matterAccessory: MatterAccessory);
 
   constructor(
     displayNameOrMatterAccessory: string | MatterAccessory,
     uuid?: string,
-    accessoryType?: string,
+    deviceType?: EndpointType,
   ) {
     if (typeof displayNameOrMatterAccessory === 'string') {
       this.matterAccessory = {
         UUID: uuid!,
         displayName: displayNameOrMatterAccessory,
-        deviceType: undefined as unknown as EndpointType,
+        deviceType: deviceType!,
         serialNumber: '',
         manufacturer: 'Virtual Matter Accessories',
-        model: `VMA4H - ${accessoryType!}`,
+        model: `VMA4H - ${deviceType!.name}`,
         context: {},
       };
     }
@@ -36,37 +44,19 @@ export class MatterPlatformAccessory {
       this.matterAccessory = displayNameOrMatterAccessory;
     }
 
-    // Validate existing values.
-    this.validateString(
-      'serialNumber',
-      this.matterAccessory.serialNumber,
-    );
-
-    this.validateString(
-      'manufacturer',
-      this.matterAccessory.manufacturer,
-    );
-
-    this.validateString(
-      'model',
-      this.matterAccessory.model,
-    );
+    this.validate();
   }
-
-  //
-  // MatterAccessory
-  //
 
   getMatterAccessory(): MatterAccessory {
     return this.matterAccessory;
   }
 
-  //
-  // Identity
-  //
-
   get UUID(): string {
     return this.matterAccessory.UUID;
+  }
+
+  set UUID(value: string) {
+    this.matterAccessory.UUID = value;
   }
 
   get displayName(): string {
@@ -74,8 +64,13 @@ export class MatterPlatformAccessory {
   }
 
   set displayName(value: string) {
-    this.matterAccessory.displayName =
-    this.validateString('displayName', value);
+    this.validateString(
+      'displayName',
+      value,
+      MatterPlatformAccessory.MAXIMUM_BASIC_INFORMATION_LENGTH,
+    );
+
+    this.matterAccessory.displayName = value;
   }
 
   get deviceType(): EndpointType {
@@ -86,17 +81,18 @@ export class MatterPlatformAccessory {
     this.matterAccessory.deviceType = value;
   }
 
-  //
-  // Basic Information
-  //
-
   get serialNumber(): string {
     return this.matterAccessory.serialNumber;
   }
 
   set serialNumber(value: string) {
-    this.matterAccessory.serialNumber =
-      this.validateString('serialNumber', value);
+    this.validateString(
+      'serialNumber',
+      value,
+      MatterPlatformAccessory.MAXIMUM_BASIC_INFORMATION_LENGTH,
+    );
+
+    this.matterAccessory.serialNumber = value;
   }
 
   get manufacturer(): string {
@@ -104,8 +100,13 @@ export class MatterPlatformAccessory {
   }
 
   set manufacturer(value: string) {
-    this.matterAccessory.manufacturer =
-      this.validateString('manufacturer', value);
+    this.validateString(
+      'manufacturer',
+      value,
+      MatterPlatformAccessory.MAXIMUM_BASIC_INFORMATION_LENGTH,
+    );
+
+    this.matterAccessory.manufacturer = value;
   }
 
   get model(): string {
@@ -113,8 +114,13 @@ export class MatterPlatformAccessory {
   }
 
   set model(value: string) {
-    this.matterAccessory.model =
-      this.validateString('model', value);
+    this.validateString(
+      'model',
+      value,
+      MatterPlatformAccessory.MAXIMUM_BASIC_INFORMATION_LENGTH,
+    );
+
+    this.matterAccessory.model = value;
   }
 
   get firmwareRevision(): string | undefined {
@@ -122,12 +128,48 @@ export class MatterPlatformAccessory {
   }
 
   set firmwareRevision(value: string | undefined) {
+    if (value !== undefined) {
+      this.validateString(
+        'firmwareRevision',
+        value,
+        MatterPlatformAccessory.MAXIMUM_VERSION_LENGTH,
+      );
+    }
+
     this.matterAccessory.firmwareRevision = value;
   }
 
-  //
-  // Context
-  //
+  get hardwareRevision(): string | undefined {
+    return this.matterAccessory.hardwareRevision;
+  }
+
+  set hardwareRevision(value: string | undefined) {
+    if (value !== undefined) {
+      this.validateString(
+        'hardwareRevision',
+        value,
+        MatterPlatformAccessory.MAXIMUM_VERSION_LENGTH,
+      );
+    }
+
+    this.matterAccessory.hardwareRevision = value;
+  }
+
+  get softwareVersion(): string | undefined {
+    return this.matterAccessory.softwareVersion;
+  }
+
+  set softwareVersion(value: string | undefined) {
+    if (value !== undefined) {
+      this.validateString(
+        'softwareVersion',
+        value,
+        MatterPlatformAccessory.MAXIMUM_VERSION_LENGTH,
+      );
+    }
+
+    this.matterAccessory.softwareVersion = value;
+  }
 
   get context(): MatterAccessory['context'] {
     return this.matterAccessory.context;
@@ -137,10 +179,6 @@ export class MatterPlatformAccessory {
     this.matterAccessory.context = value;
   }
 
-  //
-  // Clusters
-  //
-
   get clusters(): MatterAccessory['clusters'] {
     return this.matterAccessory.clusters;
   }
@@ -148,10 +186,6 @@ export class MatterPlatformAccessory {
   set clusters(value: MatterAccessory['clusters']) {
     this.matterAccessory.clusters = value;
   }
-
-  //
-  // Handlers
-  //
 
   get handlers(): MatterAccessory['handlers'] {
     return this.matterAccessory.handlers;
@@ -161,21 +195,81 @@ export class MatterPlatformAccessory {
     this.matterAccessory.handlers = value;
   }
 
-  //
-  // Validation
-  //
+  get getState(): MatterAccessory['getState'] {
+    return this.matterAccessory.getState;
+  }
+
+  set getState(value: MatterAccessory['getState']) {
+    this.matterAccessory.getState = value;
+  }
+
+  get parts(): MatterAccessory['parts'] {
+    return this.matterAccessory.parts;
+  }
+
+  set parts(value: MatterAccessory['parts']) {
+    this.matterAccessory.parts = value;
+  }
+
+  private validate(): void {
+    this.validateString(
+      'displayName',
+      this.matterAccessory.displayName,
+      MatterPlatformAccessory.MAXIMUM_BASIC_INFORMATION_LENGTH,
+    );
+
+    this.validateString(
+      'serialNumber',
+      this.matterAccessory.serialNumber,
+      MatterPlatformAccessory.MAXIMUM_BASIC_INFORMATION_LENGTH,
+    );
+
+    this.validateString(
+      'manufacturer',
+      this.matterAccessory.manufacturer,
+      MatterPlatformAccessory.MAXIMUM_BASIC_INFORMATION_LENGTH,
+    );
+
+    this.validateString(
+      'model',
+      this.matterAccessory.model,
+      MatterPlatformAccessory.MAXIMUM_BASIC_INFORMATION_LENGTH,
+    );
+
+    if (this.matterAccessory.firmwareRevision !== undefined) {
+      this.validateString(
+        'firmwareRevision',
+        this.matterAccessory.firmwareRevision,
+        MatterPlatformAccessory.MAXIMUM_VERSION_LENGTH,
+      );
+    }
+
+    if (this.matterAccessory.hardwareRevision !== undefined) {
+      this.validateString(
+        'hardwareRevision',
+        this.matterAccessory.hardwareRevision,
+        MatterPlatformAccessory.MAXIMUM_VERSION_LENGTH,
+      );
+    }
+
+    if (this.matterAccessory.softwareVersion !== undefined) {
+      this.validateString(
+        'softwareVersion',
+        this.matterAccessory.softwareVersion,
+        MatterPlatformAccessory.MAXIMUM_VERSION_LENGTH,
+      );
+    }
+  }
 
   private validateString(
     property: string,
     value: string,
-  ): string {
-    if (value.length > MatterPlatformAccessory.MAXIMUM_STRING_LENGTH) {
+    maximumLength: number,
+  ): void {
+    if (value.length > maximumLength) {
       throw new RangeError(
-        `${property} cannot exceed ` +
-        `${MatterPlatformAccessory.MAXIMUM_STRING_LENGTH} characters`,
+        `${property} cannot exceed ${maximumLength} characters`,
       );
     }
-
-    return value;
   }
 }
