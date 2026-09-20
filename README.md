@@ -39,9 +39,6 @@ You do not have to volunteer to translate it, but hopefully will provide feedbac
 
   - [About Virtual Matter Accessories For Homebridge](#about-virtual-matter-accessories-for-homebridge)
   - [Installation](#installation)
-    - [Docker](#docker)
-    - [MacOS](#macos)
-    - [Synology](#synology)
   - [Configuration](#configuration)
   - [Accessory Configurations](#accessory-configurations)
     - [Switch](#switch)
