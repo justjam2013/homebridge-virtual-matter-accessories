@@ -55,9 +55,9 @@ You do not have to volunteer to translate it, but hopefully will provide feedbac
 
 ## About Virtual Matter Accessories For Homebridge
 
-This plugin is a Matter version of the [`Virtual Matter Accessories For Homebridge`](https://github.com/justjam2013/homebridge-virtual-matter-accessories) plugin.
+This plugin is the Matter version of my [`Virtual Matter Accessories For Homebridge`](https://github.com/justjam2013/homebridge-virtual-matter-accessories) plugin.
 
-The purpose of this plugin is to be able to create different types of Matter virtual accessories. I am slowly moving my smart home setup to Matter, so I wanted to have my virtual accessories exposed as Matter devices also.
+The purpose of this plugin is to be able to create different types of Matter virtual accessories. I am in the process of moving my entire smart home setup to Matter, so I wanted to have my virtual accessories exposed as Matter devices also. Hence this plugin.
 
 This is work in progress so I will be releasing bug fixes and updates. Also, I will slowly add new accessories and functionality, either as I need them, or, more likely, in response to requests by users who find this plugin useful.
 
