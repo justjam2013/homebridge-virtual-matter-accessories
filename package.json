@@ -72,7 +72,7 @@
     "rimraf": "^6.1.0",
     "ts-node": "^10.9.2",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.46.4"
+    "typescript-eslint": "^8.70.1"
   },
   "allowScripts": {
     "@justjam2013/raw-socket": true,
