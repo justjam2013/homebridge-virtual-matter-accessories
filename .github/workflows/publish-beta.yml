@@ -43,8 +43,8 @@ jobs:
 
     needs: [publish]
 
-    # uses: homebridge/.github/.github/workflows/discord-webhooks.yml@latest
-    uses: justjam2013/homebridge-virtual-matter-accessories/.github/workflows/discord-webhooks.yml@latest
+    # uses: homebridge/.github/.github/workflows/discord-webhooks.yml@main
+    uses: justjam2013/homebridge-virtual-matter-accessories/.github/workflows/discord-webhooks.yml@main
     with:
       title: Virtual Matter Accessories - Beta Release
       description: |
