@@ -10,7 +10,7 @@ jobs:
   post-test-release-to-discord:
     name: Discord Webhooks
 
-    uses: justjam2013/homebridge-virtual-matter-accessories/.github/workflows/discord-webhooks.yml@latest
+    uses: justjam2013/homebridge-virtual-matter-accessories/.github/workflows/discord-webhooks.yml@main
     with:
       title: Test
       description: |
