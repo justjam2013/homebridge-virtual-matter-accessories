@@ -68,7 +68,7 @@ jobs:
           image: ${{ inputs.image || ''}}
           color: ${{ inputs.color || '0xFFE87F'}}
           url: ${{ inputs.url || 'https://github.com/justjam2013/homebridge-virtual-matter-accessories/'}}
-          username: ${{ inputs.username || 'Virtual Accessories For Homebridge'}}
+          username: ${{ inputs.username || 'Virtual Matter Accessories For Homebridge'}}
           avatar_url: ${{ inputs.avatar_url || 'https://raw.githubusercontent.com/justjam2013/homebridge-virtual-matter-accessories/latest/assets/icon/VirtualMatterAccessories.png'}}
           nofail: ${{ inputs.nofail || true}}
           noprefix: ${{ inputs.noprefix || false}}
